@@ -1,0 +1,67 @@
+---
+project: 'ric_app_ad_cell'
+project_creation_date: '2023-01-03'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &oran_ric_app_ad_cell_ptl
+    name: 'Sunil Singh'
+    email: 'singh.sunil@hcl.com'
+    id: 'singh.sunil'
+    company: 'HCLTech'
+    timezone: 'Asia/Calcutta'
+primary_contact: *oran_ric_app_ad_cell_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.o-ran-sc.org/projects/RICAPP'
+    key: 'ric_app_ad_cell'
+mailing_list:
+    type: 'groups.io'
+    url: 'technical-discuss@lists.o-ran-sc.org'
+    tag: '[]'
+realtime_discussion:
+    type: 'irc'
+    server: 'freenode.net'
+    channel: '#oran'
+meetings:
+    - type: 'gotomeeting+irc'
+      agenda: 'https://wiki.o-ran-sc.org/display/RICP/Project+meetings'
+      url: ''
+      server: 'freenode.net'
+      channel: '#oran'
+      repeats: ''
+      time: ''
+repositories:
+    - ric-app/ad-cell
+committers:
+    - <<: *oran_ric_app_ad_cell_ptl
+    - name: 'Saurabh Devgun'
+      email: 'saurabh.dev@samsung.com'
+      company: 'Samsung'
+      id: 'SaurabhDevgun'
+    - name: 'Saravanan Balasubrammanian'
+      email: 's.balasubram@samsung.com'
+      company: 'Samsung'
+      id: 'saravanan.bala'
+    - name: 'Priyanshu Panwar'
+      email: 'priyashu.p@samsung.com'
+      company: 'Samsung'
+      id: 'priyashu.p'
+    - name: 'Kunaal Bhagtani'
+      email: 'k.bhagtani@samsung.com'
+      company: 'Samsung'
+      id: 'k.bhagtani'
+    - name: 'Amit Kumar Bharadwaj'
+      email: 'amit.bha@samsung.com'
+      company: 'Samsung'
+      id: 'amitgemni20'
+    - name: 'Shilpashree S'
+      email: 'shilpa.shree@samsung.com'
+      company: 'Samsung'
+      id: 'shilpa.shree'
+tsc:
+    # yamllint disable rule:line-length
+    approval: 'https://wiki.o-ran-sc.org/display/TOC#ORANSCTechnicalOversightCommittee(TOC)-20221215'
+    changes:
+        - type: ''
+          name: ''
+          link: ''
