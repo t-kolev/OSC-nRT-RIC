@@ -1,0 +1,31 @@
+{
+    "alarmdefinitions" : [
+        {
+            "alarmId" : 72004,
+            "alarmText" : "E2 CONNECTION PROBLEM",
+            "eventType" : "communication",
+            "operationInstructions" : "Not defined",
+            "raiseDelay" : 0,
+            "clearDelay" : 0,
+            "timeToLive" : 0
+        },
+        {
+            "alarmId" : 72007,
+            "alarmText" : "ACTIVE ALARM EXCEED MAX THRESHOLD",
+            "eventType" : "equipment",
+            "operationInstructions" : "Clear alarms or raise threshold",
+            "raiseDelay" : 0,
+            "clearDelay" : 0,
+            "timeToLive" : 0
+        },
+        {
+            "alarmId" : 72008,
+            "alarmText" : "ALARM HISTORY EXCEED MAX THRESHOLD",
+            "eventType" : "equipment",
+            "operationInstructions" : "Clear alarms or raise threshold",
+            "raiseDelay" : 0,
+            "clearDelay" : 0,
+            "timeToLive" : 0
+        }
+   ]
+}

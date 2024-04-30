@@ -1,0 +1,32 @@
+{
+    "local": {
+        "host": ":8099"
+    },
+    "logger": {
+        "level": 4
+    },
+    "db": {
+        "namespaces": ["sdl", "rnib"]
+    },
+    "rmr": {
+        "protPort": "tcp:4560",
+        "maxSize": 1024,
+        "numWorkers": 1
+    },
+    "controls": {
+        "promAlertManager": {
+            "address": "elfkp-prometheus-alertmanager:9093",
+            "baseUrl": "/api/v2",
+            "schemes": "http",
+            "alertInterval": 30000
+        },
+        "noma": {
+            "enabled": false,
+            "host": "http://service-ricplt-noma-http:8087",
+            "alarmUrl": "ric/v1/noma/alarms"
+        },
+        "maxActiveAlarms": 5000,
+        "maxAlarmHistory": 20000,
+        "alarmInfoPvFile": "/mnt/disk/amvol/alarminfo.json"
+    }
+}
