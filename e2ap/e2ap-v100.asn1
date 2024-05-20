@@ -1,0 +1,1011 @@
+
+-- Copyright (c) 2019 AT&T Intellectual Property.
+-- Copyright (c) 2019 Nokia.
+--
+-- Licensed under the Creative Commons Attribution 4.0 International 
+-- Public License (the "License"); you may not use this file except 
+-- in compliance with the License. You may obtain a copy of the License at
+--
+--     https://creativecommons.org/licenses/by/4.0/
+--
+-- Unless required by applicable law or agreed to in writing, documentation
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+
+
+
+-- ASN1START
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+-- Derived from 3GPP X2AP 36.423v15.4.0 section 9.3.4 x2ap-PDU-Descriptions
+-- **************************************************************
+
+E2AP-PDU-Descriptions {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 28458 exp(99) mobileDomain (0) ric (21) modules (3) e2ap (2) version1 (1) e2ap-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+FROM X2AP-CommonDataTypes
+
+	ENBConfigurationUpdate,
+	ENBConfigurationUpdateAcknowledge,
+	ENBConfigurationUpdateFailure,
+	ErrorIndication,
+	LoadInformation,
+	ResetRequest,
+	ResetResponse,
+	ResourceStatusFailure,
+	ResourceStatusRequest,
+	ResourceStatusResponse,
+	ResourceStatusUpdate, 
+	X2SetupFailure,
+	X2SetupRequest,
+	X2SetupResponse,
+	ENDCX2SetupRequest,
+	ENDCX2SetupResponse,
+	ENDCX2SetupFailure,
+	ENDCConfigurationUpdate,
+	ENDCConfigurationUpdateAcknowledge,
+	ENDCConfigurationUpdateFailure,
+	GNBStatusIndication
+FROM X2AP-PDU-Contents
+
+	id-eNBConfigurationUpdate,
+	id-errorIndication,
+	id-loadIndication,
+	id-reset,
+	id-resourceStatusReporting,
+	id-resourceStatusReportingInitiation, 
+	id-x2Setup,
+	id-endcX2Setup,
+	id-endcConfigurationUpdate,
+	id-gNBStatusIndication
+FROM X2AP-Constants
+
+    RICsubscriptionRequest,
+    RICsubscriptionResponse,
+    RICsubscriptionFailure,
+    RICsubscriptionDeleteRequest,
+    RICsubscriptionDeleteResponse,
+    RICsubscriptionDeleteFailure,
+    RICindication,
+    RICcontrolRequest,
+    RICcontrolAcknowledge,
+    RICcontrolFailure,
+    RICserviceUpdate,
+    RICserviceUpdateAcknowledge,
+    RICserviceUpdateFailure,
+    RICserviceQuery
+FROM E2AP-PDU-Contents
+
+    id-RICsubscriptionRequest,
+    id-RICsubscriptionResponse,
+    id-RICsubscriptionFailure,
+    id-RICsubscriptionDeleteRequest,
+    id-RICsubscriptionDeleteResponse,
+    id-RICsubscriptionDeleteFailure,
+    id-RICindication,
+    id-RICcontrolRequest,
+    id-RICcontrolAcknowledge,
+    id-RICcontrolFailure,
+    id-RICserviceUpdate,
+    id-RICserviceUpdateAcknowledge,
+    id-RICserviceUpdateFailure,
+    id-RICserviceQuery
+FROM E2AP-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+E2AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				        OPTIONAL,
+	&UnsuccessfulOutcome				    OPTIONAL,
+	&procedureCode			ProcedureCode 	UNIQUE,
+	&criticality			Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME	&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+E2AP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode		E2AP-ELEMENTARY-PROCEDURE.&procedureCode({E2AP-ELEMENTARY-PROCEDURES}),
+	criticality			E2AP-ELEMENTARY-PROCEDURE.&criticality({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value				E2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode		E2AP-ELEMENTARY-PROCEDURE.&procedureCode({E2AP-ELEMENTARY-PROCEDURES}),
+	criticality			E2AP-ELEMENTARY-PROCEDURE.&criticality({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value				E2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode		E2AP-ELEMENTARY-PROCEDURE.&procedureCode({E2AP-ELEMENTARY-PROCEDURES}),
+	criticality			E2AP-ELEMENTARY-PROCEDURE.&criticality({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value				E2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome({E2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+E2AP-ELEMENTARY-PROCEDURES E2AP-ELEMENTARY-PROCEDURE ::= {
+    E2AP-ELEMENTARY-PROCEDURES-CLASS-1			|
+    E2AP-ELEMENTARY-PROCEDURES-CLASS-2,
+    ...
+}
+
+E2AP-ELEMENTARY-PROCEDURES-CLASS-1 E2AP-ELEMENTARY-PROCEDURE ::= {
+-- Defined in e2ap-PDU-Contents
+    ricSubscription										|
+    ricSubscriptionDelete                               |
+    ricServiceUpdate									|
+    ricControl                                          |
+
+-- Defined in x2ap-PDU-Contents
+    x2Setup												|
+    endcX2Setup											|
+    resourceStatusReportingInitiation					|
+    eNBConfigurationUpdate								|
+    endcConfigurationUpdate								|
+    reset,
+    ...
+}
+
+E2AP-ELEMENTARY-PROCEDURES-CLASS-2 E2AP-ELEMENTARY-PROCEDURE ::= {
+-- Defined in e2ap-PDU-Contents
+    ricIndication	    								|
+    ricServiceQuery                   					|
+
+-- Defined in x2ap-PDU-Contents	
+    loadIndication										|
+    gNBStatusIndication                     			|
+    resourceStatusReporting								|
+    errorIndication,	
+	...
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+ricSubscription E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RICsubscriptionRequest
+	SUCCESSFUL OUTCOME		RICsubscriptionResponse
+	UNSUCCESSFUL OUTCOME	RICsubscriptionFailure
+	PROCEDURE CODE			id-ricSubscription
+	CRITICALITY				reject
+}
+
+ricSubscriptionDelete E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RICsubscriptionDeleteRequest
+	SUCCESSFUL OUTCOME		RICsubscriptionDeleteResponse
+	UNSUCCESSFUL OUTCOME	RICsubscriptionDeleteFailure
+	PROCEDURE CODE			id-ricSubscriptionDelete
+	CRITICALITY				reject
+}
+
+ricServiceUpdate E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RICserviceUpdate
+	SUCCESSFUL OUTCOME		RICserviceUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	RICserviceUpdateFailure
+	PROCEDURE CODE			id-ricServiceUpdate
+	CRITICALITY				reject
+}
+
+ricControl E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RICcontrolRequest
+	SUCCESSFUL OUTCOME		RICcontrolAcknowledge
+	UNSUCCESSFUL OUTCOME	RICcontrolFailure
+	PROCEDURE CODE			id-ricControl
+	CRITICALITY				reject
+}
+
+x2Setup	E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		X2SetupRequest
+	SUCCESSFUL OUTCOME		X2SetupResponse
+	UNSUCCESSFUL OUTCOME	X2SetupFailure
+	PROCEDURE CODE			id-x2Setup
+	CRITICALITY				reject
+}
+
+endcX2Setup E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENDCX2SetupRequest
+	SUCCESSFUL OUTCOME		ENDCX2SetupResponse
+	UNSUCCESSFUL OUTCOME	ENDCX2SetupFailure
+	PROCEDURE CODE			id-endcX2Setup
+	CRITICALITY				reject
+}
+
+resourceStatusReportingInitiation	E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusRequest
+	SUCCESSFUL OUTCOME		ResourceStatusResponse
+	UNSUCCESSFUL OUTCOME	ResourceStatusFailure
+	PROCEDURE CODE			id-resourceStatusReportingInitiation
+	CRITICALITY				reject
+}
+
+-- en-dc gNB version of resourceStatusReportingInitiation not defined in 3GPP X2AP rel15 (to be added when available)
+
+eNBConfigurationUpdate		E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBConfigurationUpdate
+	SUCCESSFUL OUTCOME		ENBConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	ENBConfigurationUpdateFailure
+	PROCEDURE CODE			id-eNBConfigurationUpdate
+	CRITICALITY				reject
+}
+
+endcConfigurationUpdate		E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENDCConfigurationUpdate
+	SUCCESSFUL OUTCOME		ENDCConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	ENDCConfigurationUpdateFailure
+	PROCEDURE CODE			id-endcConfigurationUpdate
+	CRITICALITY				reject
+}
+
+reset	E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResetRequest
+	SUCCESSFUL OUTCOME		ResetResponse
+	PROCEDURE CODE			id-reset
+	CRITICALITY				reject
+}
+
+
+ricIndication E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RICindication
+	PROCEDURE CODE			id-ricIndication
+	CRITICALITY				ignore
+}
+
+ricServiceQuery E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RICserviceQuery
+	PROCEDURE CODE			id-ricServiceQuery
+	CRITICALITY				ignore
+}
+
+
+loadIndication E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		LoadInformation
+	PROCEDURE CODE			id-loadIndication
+	CRITICALITY				ignore
+}
+
+gNBStatusIndication		E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		GNBStatusIndication
+	PROCEDURE CODE			id-gNBStatusIndication
+	CRITICALITY				ignore
+}
+
+resourceStatusReporting E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusUpdate
+	PROCEDURE CODE			id-resourceStatusReporting
+	CRITICALITY				ignore
+}
+-- en-dc gNB version of resourceStatusReporting not defined in 3GPP X2AP rel15 (to be added when available)
+
+errorIndication E2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+END
+-- ASN1STOP
+
+
+-- ASN1START
+-- **************************************************************
+--
+-- PDU definitions for E2AP
+-- Derived from 3GPP X2AP 36.423v15.4.0 section 9.3.4 x2ap-PDU-Contents
+-- 
+-- **************************************************************
+
+E2AP-PDU-Contents {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 28458 exp(99) mobileDomain (0) ric (21) modules (3) e2ap (2) version1 (1) e2ap-PDU-Contents (1) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+    
+    RANfunctionID,
+    RANfunctionDefinition,
+    RICactionDefinition,
+    RICactionID,
+    RICactionType,
+    RICcallProcessID,
+    RICcause,
+    RICcontrolAckRequest,
+    RICcontrolMessage,
+    RICcontrolStatus,
+    RICeventTriggerDefinition,
+    RICindicationType,
+    RICindicationMessage,
+    RICrequestID,
+    RICsubsequentAction
+FROM E2AP-IEs
+
+	TimeToWait,
+    CriticalityDiagnostics
+FROM X2AP-IEs
+
+	id-TimeToWait,
+    id-CriticalityDiagnostics
+FROM X2AP-Constants
+
+    ProtocolIE-Container{},
+    ProtocolIE-ContainerList{},
+    ProtocolIE-Single-Container{},
+    X2AP-PROTOCOL-IES,
+    X2AP-PROTOCOL-IES-PAIR
+FROM X2AP-Containers
+
+    id-RANfunctionID,
+    id-RANfunctionsAdded,
+    id-RANfunctionsModified,
+    id-RANfunctionsDeleted,
+    id-RANfunction-Item,
+    id-RANfunctionsAccepted,
+    id-RANfunctionsRejected,
+    id-RANfunctionIEcause-Item,
+    id-RICrequestID,
+    id-RICsubscription,
+    id-RICaction-ToBeSetup-Item,
+    id-RICactions-Admitted,
+    id-RICactions-NotAdmitted,
+    id-RICaction-Admitted-Item,
+    id-RICaction-NotAdmitted-Item,
+    id-RICcause,
+    id-RICactionID,
+    id-RICindicationSN,
+    id-RICindicationHeader,
+    id-RICindicationPayload,
+    id-RICcallProcessID,
+    id-RICcontrolMessage,
+    id-RICcontrolAckRequest,
+    id-RICcontrolStatus,
+    id-RICserviceQuery,
+
+    maxofRANfunctionID,
+    maxofRICactionID
+FROM E2AP-Constants;
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION REQUEST
+--
+-- **************************************************************
+RICsubscriptionRequest ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICsubscriptionRequest-IEs}},
+	...
+}
+
+RICsubscriptionRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+	{ ID id-RICsubscription				CRITICALITY reject	TYPE RICsubscription				PRESENCE mandatory},
+	...
+}
+
+
+RICsubscription ::= SEQUENCE {
+	ricEventTriggerDefinition	RICeventTriggerDefinition,
+	ricAction-ToBeSetup-List	RICactions-ToBeSetup-List,
+	...
+}
+
+RICactions-ToBeSetup-List ::= SEQUENCE (SIZE(1..maxofRICactionID)) OF ProtocolIE-Single-Container { {RICaction-ToBeSetup-ItemIEs} }
+
+RICaction-ToBeSetup-ItemIEs 	X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICaction-ToBeSetup-Item	 CRITICALITY ignore 	TYPE RICaction-ToBeSetup-Item 	PRESENCE mandatory },
+	...
+}
+
+RICaction-ToBeSetup-Item ::= SEQUENCE {
+	ricActionID					RICactionID,
+	ricActionType		  		RICactionType,
+	ricActionDefinition			RICactionDefinition 	OPTIONAL,
+	ricSubsequentAction			RICsubsequentAction 	OPTIONAL,
+	...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION RESPONSE
+--
+-- **************************************************************
+RICsubscriptionResponse ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container{{RICsubscriptionResponse-IEs}},
+	...
+}
+
+RICsubscriptionResponse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject		TYPE RICrequestID				PRESENCE mandatory } |
+	{ ID id-RANfunctionID				CRITICALITY reject		TYPE RANfunctionID				PRESENCE mandatory } |
+	{ ID id-RICactions-Admitted			CRITICALITY reject		TYPE RICaction-Admitted-List	PRESENCE mandatory } |
+	{ ID id-RICactions-NotAdmitted		CRITICALITY reject		TYPE RICaction-NotAdmitted-List	PRESENCE optional },
+    ...	  
+}
+
+
+
+RICaction-Admitted-List ::= SEQUENCE (SIZE(1..maxofRICactionID)) OF ProtocolIE-Single-Container{{RICaction-Admitted-ItemIEs}}
+
+RICaction-Admitted-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICaction-Admitted-Item		CRITICALITY ignore		TYPE RICaction-Admitted-Item	PRESENCE mandatory },
+	...
+}
+
+RICaction-Admitted-Item ::= SEQUENCE {
+	ricActionID					RICactionID,
+	...
+}
+
+RICaction-NotAdmitted-List ::= SEQUENCE (SIZE(0..maxofRICactionID)) OF ProtocolIE-Single-Container { {RICaction-NotAdmitted-ItemIEs} }
+
+RICaction-NotAdmitted-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICaction-NotAdmitted-Item	CRITICALITY ignore	TYPE RICaction-NotAdmitted-Item		PRESENCE mandatory },
+	...
+}
+
+RICaction-NotAdmitted-Item ::= SEQUENCE {
+	ricActionID					RICactionID,
+	ricCause					RICcause,
+	...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION FAILURE
+--
+-- **************************************************************
+RICsubscriptionFailure ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICsubscriptionFailure-IEs}},
+	...
+}
+
+RICsubscriptionFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+	{ ID id-RICactions-NotAdmitted		CRITICALITY reject	TYPE RICaction-NotAdmitted-List		PRESENCE mandatory}|
+    { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},	
+    ...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION DELETE REQUEST
+--
+-- **************************************************************
+RICsubscriptionDeleteRequest ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteRequest-IEs}},
+	...
+}
+
+RICsubscriptionDeleteRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory},	
+    ...
+}
+
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION DELETE RESPONSE
+--
+-- **************************************************************
+RICsubscriptionDeleteResponse ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteResponse-IEs}},
+	...
+}
+
+RICsubscriptionDeleteResponse-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory},	
+    ...
+}
+-- **************************************************************
+--
+-- RIC SUBSCRIPTION DELETE FAILURE
+--
+-- **************************************************************
+RICsubscriptionDeleteFailure ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICsubscriptionDeleteFailure-IEs}},
+	...
+}
+
+RICsubscriptionDeleteFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+    { ID id-RICcause					CRITICALITY ignore	TYPE RICcause						PRESENCE mandatory}|
+    { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},	
+    ...
+}
+
+-- **************************************************************
+--
+-- RIC INDICATION
+--
+-- **************************************************************
+RICindication ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICindication-IEs}},
+	...
+}
+
+RICindication-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+	{ ID id-RICactionID					CRITICALITY reject	TYPE RICactionID					PRESENCE mandatory}|
+	{ ID id-RICindicationSN				CRITICALITY reject	TYPE RICindicationSN				PRESENCE mandatory}|
+    { ID id-RICindicationType			CRITICALITY reject	TYPE RICindicationType  			PRESENCE mandatory}|
+	{ ID id-RICindicationHeader			CRITICALITY reject	TYPE RICindicationHeader			PRESENCE mandatory}|
+	{ ID id-RICindicationMessage		CRITICALITY reject	TYPE RICindicationMessage           PRESENCE mandatory} |
+	{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional},
+    ...
+}
+
+-- **************************************************************
+--
+-- RIC CONTROL REQUEST
+--
+-- **************************************************************
+RICcontrolRequest ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICcontrolRequest-IEs}},
+	...
+}
+
+RICcontrolRequest-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+	{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional}|
+	{ ID id-RICcontrolHeader			CRITICALITY reject	TYPE RICcontrolHeader				PRESENCE mandatory}|
+	{ ID id-RICcontrolMessage			CRITICALITY reject	TYPE RICcontrolMessage				PRESENCE mandatory}|
+    { ID id-RICcontrolAckRequest		CRITICALITY reject	TYPE RICcontrolAckRequest     		PRESENCE optional},
+    ...
+}
+-- **************************************************************
+--
+-- RIC CONTROL ACKNOWLEDGE
+--
+-- **************************************************************
+RICcontrolAcknowledge ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICcontrolAcknowledge-IEs}},
+	...
+}
+
+RICcontrolAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+	{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional}|
+	{ ID id-RICcontrolStatus			CRITICALITY reject	TYPE RICcontrolStatus				PRESENCE mandatory},
+    ...
+}
+-- **************************************************************
+--
+-- RIC CONTROL FAILURE
+--
+-- **************************************************************
+RICcontrolFailure ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICcontrolFailure-IEs}},
+	...
+}
+
+RICcontrolFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RICrequestID				CRITICALITY reject	TYPE RICrequestID					PRESENCE mandatory}|
+	{ ID id-RANfunctionID				CRITICALITY reject	TYPE RANfunctionID					PRESENCE mandatory}|
+	{ ID id-RICcallProcessID			CRITICALITY reject	TYPE RICcallProcessID				PRESENCE optional}|
+	{ ID id-RICcause				    CRITICALITY ignore	TYPE RICcause				        PRESENCE mandatory},
+    ...
+}
+
+-- **************************************************************
+--
+-- RIC SERVICE UPDATE
+--
+-- **************************************************************
+RICserviceUpdate ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICserviceUpdate-IEs}},
+	...
+}
+
+RICserviceUpdate-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunctionsAdded			CRITICALITY reject	TYPE RANfunctions-List		     	PRESENCE optional}|
+	{ ID id-RANfunctionsModified		CRITICALITY reject	TYPE RANfunctions-List		        PRESENCE optional}|
+    { ID id-RANfunctionsDeleted			CRITICALITY reject	TYPE RANfunctionsID-List	        PRESENCE optional},
+	...
+}
+
+RANfunctions-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF ProtocolIE-Single-Container { {RANfunction-ItemIEs} }
+
+RANfunction-ItemIEs 	X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunction-Item	 		CRITICALITY ignore 	TYPE RANfunction-Item 				PRESENCE mandatory },
+	...
+}
+
+
+RANfunction-Item ::= SEQUENCE {
+	ranFunctionID				RANfunctionID,
+	ranFunctionDefinition  		RANfunctionDefinition,
+	...
+}
+
+RANfunctionsID-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF ProtocolIE-Single-Container{{RANfunctionID-ItemIEs}}
+
+RANfunctionID-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunctionID-Item			CRITICALITY ignore		TYPE RANfunctionID-Item			PRESENCE mandatory },
+	...
+}
+
+
+RANfunctionID-Item ::= SEQUENCE {
+	ranFunctionID				RANfunctionID,
+	...
+}
+
+-- **************************************************************
+--
+-- RIC SERVICE UPDATE ACKNOWLEDGE
+--
+-- **************************************************************
+RICserviceUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICserviceUpdateAcknowledge-IEs}},
+	...
+}
+
+RICserviceUpdateAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional}|
+	{ ID id-RANfunctionsRejected		CRITICALITY reject	TYPE RANfunctionsIDcause-List		PRESENCE optional},
+	...
+}
+
+RANfunctionsIDcause-List ::= SEQUENCE (SIZE(0..maxofRANfunctionID)) OF ProtocolIE-Single-Container { {RANfunctionIDcause-ItemIEs} }
+
+RANfunctionIDcause-ItemIEs 	X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunctionIEcause-Item	 	CRITICALITY ignore 	TYPE RANfunctionIDcause-Item 		PRESENCE mandatory },
+	...
+}
+
+
+RANfunctionIDcause-Item ::= SEQUENCE {
+	ranFunctionID				RANfunctionID,
+	ricCause         			RICcause,
+	...
+}
+
+
+-- **************************************************************
+--
+-- RIC SERVICE UPDATE FAILURE
+--
+-- **************************************************************
+RICserviceUpdateFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{RICserviceUpdateFailure-IEs}},
+	...
+}
+
+RICserviceUpdateFailure-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunctionsRejected		CRITICALITY ignore	TYPE RANfunctionsIDcause-List		PRESENCE optional}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait						PRESENCE optional}|
+    { ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- RIC SERVICE QUERY
+--
+-- **************************************************************
+RICserviceQuery ::= SEQUENCE {
+	protocolIEs					ProtocolIE-Container	{{RICserviceQuery-IEs}},
+	...
+}
+
+RICserviceQuery-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-RANfunctionsAccepted		CRITICALITY reject	TYPE RANfunctionsID-List			PRESENCE optional},
+	...
+}
+
+END
+-- ASN1STOP
+
+
+-- ASN1START
+-- **************************************************************
+--
+-- Information Element Definitions
+-- Derived from 3GPP X2AP 36.423v15.4.0 section 9.3.5 x2ap-IEs
+-- see also 3GPP X2AP 36.423 section 9.3.5 x2ap-IEs
+-- **************************************************************
+
+E2AP-IEs {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 28458 exp(99) mobileDomain (0) ric (21) modules (3) e2ap (2) version1 (1) e2ap-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+	CauseRadioNetwork,
+	CauseTransport,
+	CauseProtocol,
+	CauseMisc
+FROM X2AP-IEs;
+
+-- A
+-- B
+-- C
+
+CauseRIC ::= ENUMERATED {
+	function-id-Invalid, 
+	action-not-supported, 
+	excessive-actions,
+	duplicate-action, 
+	duplicate-event,
+	function-resource-limit, 
+	request-id-unknown, 
+	inconsistent-action-subsequent-action-sequence, 
+	control-message-invalid, 
+	call-process-id-invalid,
+	function-not-required, 
+	excessive-functions, 
+	ric-resource-limit,
+	...
+}
+-- D
+-- E
+-- F
+-- G
+-- H
+-- I
+-- J
+-- K
+-- L
+-- M
+-- N
+-- O
+-- P
+-- Q
+-- R
+RANfunctionDefinition ::= OCTET STRING
+
+RANfunctionID ::= INTEGER (0..4095)
+
+RICactionDefinition ::= OCTET STRING
+
+RICactionID ::= INTEGER (0..255)
+
+RICactionType ::= ENUMERATED{
+	report,
+	insert,
+	policy,
+	...
+}
+
+RICcallProcessID ::= OCTET STRING
+
+RICcause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	transport			CauseTransport,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	ric					CauseRIC,
+	...
+}
+
+RICcontrolAckRequest ::= ENUMERATED{
+	noAck,
+	ack,
+	nAck,
+	...
+}
+
+RICcontrolHeader ::= OCTET STRING
+
+RICcontrolMessage ::= OCTET STRING
+
+RICcontrolStatus ::= ENUMERATED{
+	success,
+	rejected,
+	failed,
+	...
+}
+
+RICeventTriggerDefinition ::= OCTET STRING
+
+RICindicationHeader ::= OCTET STRING
+
+RICindicationMessage ::= OCTET STRING
+
+RICindicationSN ::= INTEGER (0..65535)
+
+RICindicationType ::= ENUMERATED{
+	report,
+	insert,
+	...
+}
+
+RICrequestID ::= SEQUENCE {
+	ricRequestorID				INTEGER (0..65535),
+	ricRequestSequenceNumber	INTEGER (0..65535),
+	...
+}
+
+RICsubsequentAction ::=SEQUENCE{
+	ricSubsequentActionType		RICsubsequentActionType,
+	ricTimeToWait				RICtimeToWait,
+	...
+}
+
+RICsubsequentActionType ::= ENUMERATED{
+	continue,
+	wait,
+	...
+}
+
+RICtimeToWait ::= ENUMERATED{
+	zero,
+	w1ms,
+	w2ms,
+	w5ms,
+	w10ms,
+	w20ms,
+	w30ms,
+	w40ms,
+	w50ms,
+	w100ms,
+	w200ms,
+	w500ms,
+	w1s,
+	w2s,
+	w5s,
+	w10s,
+	w20s,
+	w60s,
+	...
+}
+
+-- S
+-- T
+-- U
+-- V
+-- W
+-- X
+-- Y
+-- Z
+
+END
+-- ASN1STOP
+
+
+-- ASN1START
+-- **************************************************************
+--
+-- Constant definitions
+-- Derived from 3GPP X2AP 36.423v15.4.0 section 9.3.7 x2ap-Constants
+-- see also 3GPP X2AP 36.423 section 9.3.7 x2ap-Constants
+-- **************************************************************
+
+E2AP-Constants {
+iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 28458 exp(99) mobileDomain (0) ric (21) modules (3) e2ap (2) version1 (1) e2ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+	ProcedureCode,
+	ProtocolIE-ID
+FROM X2AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+-- Note: see also x2ap-Constants for ProcedureCode less than 200
+-- **************************************************************
+id-ricSubscription								ProcedureCode ::= 201
+id-ricSubscriptionDelete						ProcedureCode ::= 202
+id-ricServiceUpdate								ProcedureCode ::= 203
+id-ricControl									ProcedureCode ::= 204
+id-ricIndication								ProcedureCode ::= 205
+id-ricServiceQuery								ProcedureCode ::= 206
+
+
+-- **************************************************************
+--
+-- Lists
+-- Note: see also x2ap-Constants
+-- **************************************************************
+maxofRANfunctionID                              INTEGER ::=256
+maxofRICactionID								INTEGER ::= 16
+
+-- **************************************************************
+--
+-- IEs
+-- Note: see also x2ap-Constants for ProtocolIE-ID less than 60000
+-- **************************************************************
+id-RANfunction-Item								ProtocolIE-ID ::= 60001
+id-RANfunctionDefinition 						ProtocolIE-ID ::= 60002
+id-RANfunctionID   								ProtocolIE-ID ::= 60003
+id-RANfunctionID-Item   						ProtocolIE-ID ::= 60004
+id-RANfunctionIEcause-Item						ProtocolIE-ID ::= 60005
+id-RANfunctionsAccepted	 						ProtocolIE-ID ::= 60006
+id-RANfunctionsAdded	 						ProtocolIE-ID ::= 60007
+id-RANfunctionsDeleted	 						ProtocolIE-ID ::= 60008
+id-RANfunctionsModified	 						ProtocolIE-ID ::= 60009
+id-RANfunctionsRejected	 						ProtocolIE-ID ::= 60010
+id-RICaction-ToBeSetup-Item						ProtocolIE-ID ::= 60011
+id-RICactions-Admitted							ProtocolIE-ID ::= 60012
+id-RICaction-Admitted-Item						ProtocolIE-ID ::= 60013
+id-RICactions-NotAdmitted						ProtocolIE-ID ::= 60014
+id-RICaction-NotAdmitted-Item					ProtocolIE-ID ::= 60015
+id-RICactionDefinition							ProtocolIE-ID ::= 60016
+id-RICactionID									ProtocolIE-ID ::= 60017
+id-RICactionType					    		ProtocolIE-ID ::= 60018
+id-RICcallProcessID								ProtocolIE-ID ::= 60019
+id-RICcause 									ProtocolIE-ID ::= 60020
+id-RICcontrolAckRequest							ProtocolIE-ID ::= 60021
+id-RICcontrolHeader								ProtocolIE-ID ::= 60022
+id-RICcontrolMessage							ProtocolIE-ID ::= 60023
+id-RICcontrolStatus								ProtocolIE-ID ::= 60024
+id-RICeventTriggerDefinition  					ProtocolIE-ID ::= 60025
+id-RICindicationHeader							ProtocolIE-ID ::= 60026
+id-RICindicationMessage							ProtocolIE-ID ::= 60027
+id-RICindicationSN								ProtocolIE-ID ::= 60028
+id-RICindicationType							ProtocolIE-ID ::= 60029
+id-RICrequestID									ProtocolIE-ID ::= 60030
+id-RICrequestorID								ProtocolIE-ID ::= 60031
+id-RICrequestSequenceNumber						ProtocolIE-ID ::= 60032
+id-RICsubscription								ProtocolIE-ID ::= 60033
+id-RICsubsequentAction							ProtocolIE-ID ::= 60034
+id-RICsubsequentActionType						ProtocolIE-ID ::= 60035
+id-RICtimeToWait								ProtocolIE-ID ::= 60036
+
+
+END
+-- ASN1STOP
