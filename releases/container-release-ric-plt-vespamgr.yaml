@@ -1,0 +1,10 @@
+---
+distribution_type: container
+container_release_tag: 0.7.5
+container_pull_registry: nexus3.o-ran-sc.org:10004
+container_push_registry: nexus3.o-ran-sc.org:10002
+project: ric-plt/vespamgr
+ref: 699d0f8eabfd1decc8ff06298c984a98cdc811da
+containers:
+    - name: ric-plt-vespamgr
+      version: 0.7.4

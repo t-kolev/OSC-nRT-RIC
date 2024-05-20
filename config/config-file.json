@@ -1,0 +1,85 @@
+{
+    "name": "vespamgr",
+    "version": "0.7.0",
+    "vendor": "Nokia",
+    "moId": "SEP",
+    "containers": [],
+    "livenessProbe": {
+        "httpGet": {
+            "path": "ric/v1/health/alive",
+            "port": 8080
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 15
+    },
+    "readinessProbe": {
+        "httpGet": {
+            "path": "ric/v1/health/ready",
+            "port": 8080
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 15
+    },
+    "messaging": {
+        "ports": [
+            {
+                "name": "http",
+                "container": "qos",
+                "port": 8080,
+                "description": "http service"
+            },
+            {
+                "name": "rmr-data",
+                "container": "qos",
+                "port": 4560,
+                "maxSize": 2072,
+                "threadType": 0,
+                "lowLatency": false,
+                "rxMessages": [],
+                "txMessages": [],
+                "policies": [],
+                "description": "rmr data port for qos"
+            },
+            {
+                "name": "rmr-route",
+                "container": "qos",
+                "port": 4561,
+                "description": "rmr route port for qos"
+            }
+        ]
+    },
+    "controls": {
+        "logger": {
+            "level": 4
+        },
+        "host": "http://service-ricplt-vespamgr-http.ricplt.svc.cluster.local:8080",
+        "measurementUrl": "/ric/v1/measurements",
+        "pltFile": "/tmp/vespa-plt-meas.json",
+        "pltCounterFile": "/cfg/plt-counter.json",
+        "appManager": {
+            "host": "http://service-ricplt-appmgr-http.ricplt.svc.cluster.local:8080",
+            "path": "/ric/v1/config",
+            "notificationUrl": "/ric/v1/xappnotif",
+            "subscriptionUrl": "/ric/v1/subscriptions",
+            "appmgrRetry": 100
+        },
+        "vesagent": {
+            "configFile": "/etc/ves-agent/ves-agent.yaml",
+            "hbInterval": "60s",
+            "measInterval": "30s",
+            "prometheusAddr": "http://infra-cpro-server:80",
+            "alertManagerBindAddr": ":9095"
+        },
+        "collector": {
+            "primaryAddr": "pod-ves-simulator",
+            "secondaryAddr": "pod-ves-simulator",
+            "serverRoot": "",
+            "primaryPort": 8443,
+            "primaryUser": "sample1",
+            "primaryPassword": "sample1",
+            "secure": false
+        }
+    },
+    "faults": { },
+    "metrics": []
+}
