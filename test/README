@@ -1,0 +1,120 @@
+
+Unit test
+
+This directory contains the unit test support for the RMr
+library.  The basic test is run with the follwing command:
+
+	ksh unit_test.ksh
+
+To run a specific test (e.g. ring_test.c) run:
+	ksh unit_test.ksh ring_test.c
+
+The script runs the unit test(s) given, and if they pass then
+runs an analysis on the .gcov files generated to generate
+coverage information.  By default, pass/fail of the test is
+based only on the success or failure of the unit tests which
+are testing functionality.  The unit test script can report
+an overall failure if coverage is below the indicated threshold
+when given the strict option (-s).
+
+The analysis of .gcov files generates output shown below which
+is thought to be more straight forward than the typical stuff
+gcov produces:
+
+unit_test.ksh ring_test.c
+ring_test.c --------------------------------------
+[OK]   100% uta_ring_insert
+[OK]   100% uta_ring_extract
+[OK]   100% uta_ring_free
+[LOW]   76% uta_mk_ring
+[PASS]  91% ../src/common/src/ring_static.c
+
+
+The output shows, for each function, the coverage (column 2) and an
+interpretation (ok or low) wthin an overall pass or fail.
+
+
+Because of the static nature of the RMr library, tests with the
+intent of providing coverage information, as opposed just to providing
+functional verification, are a bit trickier.  To that end, the test
+files in this directory are organised with three file name formats:
+
+	test_*.c  tools for testing, not tests
+
+	*_test.c  main test programmes which can be compiled in
+			  a stand-alone manner (e.g. gcc foo_test.c)
+
+	*_static_test.c  Test functions which are real tests and are
+			  included by one or more stand-alone driver.
+
+The unit_test script will search only for *_test.c and will ignore
+*_static_test.c files when building it's list for testing.
+
+
+Use the command 'unit_test.ksh -?' to see the usage information
+and complete set of options available.
+
+
+Merging .gcov files
+As some unit test programmes may not be able/designed to cover all 
+of a module completely, the script will merge each .gcov prooduced
+with the prior, matching, file after each pass.  The result is a
+final .gcov file that shows the coverage of the module over all 
+tests.  This allows a true coverage value to be determined while 
+permitting more simple tests to be used without the requirement of
+each test to cover everything.
+
+
+Discounting
+The unit test script makes a discount pass on low coverage files in
+attempt to discount the coverage rate by ignoring what are considered
+to be difficult to reach blocks in the code.  Currently, these blocks
+are limited to what appear to be tests for memory allocation, failure
+and/or nil pointer handling.  If code blocks of this sort are found,
+they are not counted against the coverage for the module.  If the -v
+option is given, an augmented coverage listing is saved in .dcov which
+shows the discounted lines with a string of equal signs (====) rather
+than the gcov hash string (###).
+
+The discount check is applied only if an entire module has a lower
+than accepted coverage rate, and can be forced for all modules with
+the -f option.
+
+To illustrate, the following code checks the return from the system
+library strdup() call which is very unlikely to fail under test without
+going to extremes and substituting for the system lib.  Thus, the
+block which checks for a nil pointer has been discounted:
+
+     -:  354:
+     1:  355:    dbuf = strdup( buf );
+     1:  356:    if( dbuf == NULL  ) {
+ =====:  357:        errno = ENOMEM;
+ =====:  358:        return 0;
+     -:  359:    }
+
+A final discount pass is made on all merged .gcov files after all unit 
+tests are finished. This final pass should indicate the true discounted
+coverage
+
+
+Target Coverage
+By default, a target coverage of 80% is used. For some modules this may
+be impossible to achieve, so to prevent always failing these modules
+may be listed in the .targets file with their expected minimum coverage.
+Module names need to be qualified (e.g. ../src/common/src/foo.c.
+
+
+Sonar XML Files
+If the -x option is given on the unit test script, then two XML files 
+will be generated for Sonar.  These are gcov.xml and dcov.xml and are 
+the coverage information as reflected in the merged .gcov files and in
+the .dcov files produced during the final pass.   The XML files should
+be uploaded to Sonar only after a complete unit test run is made, otherwise
+the coverage information may be lacking (reflecting only the last test
+executed and not a full complement of tests).
+
+-----------------------------------------------------------------------
+A note about ksh (A.K.A Korn shell, or kshell)
+Ksh is preferred for more complex scripts such as the unit test
+script as it does not have some of the limitations that bash
+(and other knock-offs) have.
