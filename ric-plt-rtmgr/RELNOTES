@@ -1,0 +1,217 @@
+### v0.9.3
+* updating RMR to 4.8.5
+
+### v0.9.2
+* fixed issue in meid table if same meid is associated with different E2T 
+
+### v0.8.2
+* Added some checks for E2tcreate handling and RMR update to v4.8.0 
+
+### v0.8.1
+* RIC-702: Clean-up logging in routing manager
+
+### v0.7.9
+* Replacing deprecated SDL APIs
+
+### v0.7.8
+* Refactoring rtmgr code 
+
+### v0.7.7
+* go.mod updated from 1.12 go version to 1.13
+
+### v0.7.6
+* Upgraded to RMR 4.7.4 and some improvements 
+
+### v0.7.5
+* Open RMR connection in a a new thread
+
+### v0.7.4
+* Overwrite duplicate E2T address instead of sending error to E2Manager
+
+### v0.7.3
+* Upgraded to RMR v4.5.2
+
+### v0.7.1
+* Upgraded to RMR v4.4.4
+
+### v0.6.10
+* Code violations fixed in pkg/nbi/httprestful.go
+
+### v0.6.9
+* Code violations fixed in pkg/nbi/httprestful.go and pkg/nbi/control.go
+
+### v0.6.8
+* Appending Receiver endpoint in routes if RX message type is same
+
+### v0.6.7
+* Publish Route only once to the endpoint that requests it. Periodic/Event based distribution will be done only for the process with RMR Control Port 4561.
+
+### v0.6.5
+* Removed Book Keeping of RMR CTL ports. Route Distribution on demand.
+
+### v0.6.4
+* Creating dymanic endpoints(Eps) and distributing routes to those endpoints on  upgrade route table request from xApp (this is fixed part MCxapp distribution issue for multiple route ports)
+
+### v0.6.3
+* [RIC-369] Routing manager needs to support for xApps that terminate other protocols than E2 
+
+### v0.6.2
+* Distribution of routes is synchronous. 
+
+### v0.6.1
+* Updating xapp_fwk to v0.4.15, that contains RIC_HEALTH_CHECK message types
+
+### v0.6.0
+* Updating RMR version to 4.0.5 
+
+### v0.5.9
+* Updating to xapp frw v0.4.10, for dcap to adxapp new message type
+
+### v0.5.8
+* Updating to RMR version 4.0.2
+
+### v0.5.7-3
+* Updating to RMR version 3.8.2
+
+### v0.5.7-2
+* Supporting of reading subscriptions from subscription manager while restarting rtmgr
+
+### v0.5.7-1
+* Increased http client timeout to 15sec 
+
+### v0.5.7
+* Commented subscription list retrieval during rtmgr startUp 
+
+### v0.5.6-2
+* RT records are sent in a group rather than individually. Group is configurabl 
+
+### v0.5.6-1
+* Moving to ubuntu 18 and fixing UT's
+
+### v0.5.6
+* Fix to convert service name to IP during Route update Request
+
+### v0.5.5
+* Supporting xApp to xApp Routes handling 
+
+### v0.5.3
+* RMR updated to v3.6.0 with support for E2 Setup message types
+
+### v0.5.2
+* Switch to RMR Si95 mode 
+
+### v0.5.1
+* Removal of go mangoes and using RMR nng
+
+### v0.4.16
+* getAllSubscriptions API (RM -> SM) during restart of routing manager handled
+
+### v0.4.15
+* Retained (E2M->E2T issue) - retrying when is_Ready flag in socket handle is false 
+
+### v0.4.14
+* Restart/Start of RM, fetch E2T data from E2manager - implementation in RM for v1/e2t/list API handling 
+
+### v0.4.13
+* Corrected route table syntax in case of broadcast message 
+
+### v0.4.12
+* Added debug API to request route and configuration details in routing manager 
+
+### v0.4.11
+* Added code for subscription merge and added RMR from xapp-framework 
+
+### v0.4.10
+* Temporary Fix for R3 (E2M->E2T issue) - retrying when is_Ready flag in socket handle is false 
+
+### v0.4.8
+* Entry in meid map will only contain the delta change 
+
+### v0.4.7
+* Check DNS lookup for E2T address, RED Button and KEEP alive message routes added for new E2T Address 
+
+### v0.4.6
+* Static platform routes can be configured via configuration file
+
+### v0.4.5
+* Multiple E2T instance Feature: Introduced APIs Delete E2T Instance, associate RANs to E2T and disassociate RANs from E2T Instance.
+
+### v0.4.4
+* Create E2T Instance API introduced for Multiple E2T Feature
+
+### v0.4.3
+* Included RMR changes that has MEID implementation
+
+### v0.4.2
+* Added Routes when AC-xApp is deployed 
+* included xapp-framework. Using only config and Logger module for now.
+
+### v0.4.1
+* Fixed integration and subscription routes related issues for R3
+
+### v0.3.9
+* Added RSM platform component routes for message types RAN_CONNECTED, RAN_RESTARTED, RAN_RECONFIGURED, RIC_RES_STATUS_REQ,RIC_RES_STATUS_RESP and RIC_RES_STATUS_FAILURE
+* xApp manager interface changes for Subscription Request API
+
+### v0.3.8
+* Adding docs and updating release notes for routing manager
+
+### v0.3.7
+* Fix routes for RIC_ENDC_X2_SETUP_REQ, RIC_ENDC_X2_SETUP_RESP and RIC_ENDC_X2_SETUP_FAILURE
+
+### v0.3.6
+* Routing Manager is more resilient to missing components
+* Put in order the message types
+
+### v0.3.5
+* Added platform route to send RIC_SCTP_CLEAR_ALL message to implement big red button.
+* Added E2_TERM_INIT and RIC_SCTP_CONNECTION_FAILURE message type routes.
+
+### v0.3.4
+* The following tools made available in the final docker image: iputils-ping, net-tools, curl and tcpdump
+
+### v0.3.3
+* Introduced delete API over REST interface for subscriptions.
+
+### v0.3.2
+* Minor code changes due to appmgr/rtmgr api differences
+* Doc update
+* UT fixes 
+
+### v0.3.1
+* Removed "rte" route types and made all routes to construct of "mse" literal. 
+
+### v0.3.0
+* Introduced platform-specific routes: basic components (e2term, ueman, subman, e2man) are stored in a json file (example in manifests/rtmgr/rtmgr-cfg.yaml)
+* Introduced subscription add functionality: /ric/v1/xapp-subscriptions endpoint is active, on a POST method it generates endpoint specific mse routing table entries
+
+### v0.2.0
+* Introduced http rest functionality
+* A way to get intial xapp data from xapp manager while booting the routing manager
+* A way to create a sinple webhook registration in the xapp-manager to listen on updates abpout changes in xapps
+
+### v0.1.1
+* Changes in swagger API definition
+* UTs for SBI, SDL and RPE modules
+* New message types according to RMR
+
+### v0.1.0
+* Introduces NNGPush SBI module
+* Bugfixes in argument handling
+* different RMR policy generator for Push and Pub communication
+
+### v0.0.3
+* RMR Policy Engine has been refactored to handle receiving groups properly
+* Debugging feature has been added
+* Multi level logging
+* A complex JSON file has been added to xApp Manager to test new behavior
+
+### v0.0.2
+* RTMGR (Routing Manager) implementation in Golang 
+* Updated project folder structure
+* Integration manifests
+
+### v0.0.1
+* Initial version of Routing Manager for CI/CD pipeline 
+* Dummy solution: still has no real routing capability
+* Container is based on the _**tx**_ version of [admin xApp] which already implements [RMR library]
