@@ -1,0 +1,44 @@
+/*
+ * Copyright 2019 AT&T Intellectual Property
+ * Copyright 2019 Nokia
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * This source code is part of the near-RT RIC (RAN Intelligent Controller)
+ * platform project (RICP).
+ */
+
+
+syntax = "proto3";
+package entities;
+option go_package = "gerrit.o-ran-sc.org/r/ric-plt/nodeb-rnib/entities";
+
+enum EnbType{
+	UNKNOWN_ENB_TYPE = 0;
+	MACRO_ENB = 1;
+	HOME_ENB = 2;
+	SHORT_MACRO_ENB = 3;
+	LONG_MACRO_ENB = 4;
+	MACRO_NG_ENB = 5;
+	SHORT_MACRO_NG_ENB = 6;
+	LONG_MACRO_NG_ENB = 7;
+}
+
+enum GnbType{
+	UNKNOWN_GNB_TYPE = 0;
+	GNB = 1;
+	EN_GNB = 2;
+}
+
