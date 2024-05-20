@@ -1,0 +1,101 @@
+{
+	"xapp_name": "mcxapp",
+	"version": "1.0.3",
+	"containers": [
+		{
+			"name": "mcxapp",
+			"image": {
+				"registry": "nexus3.o-ran-sc.org:10002",
+				"name": "o-ran-sc/ric-app-mc",
+				"tag": "1.0.4"
+			},
+			"command": "/playpen/bin/container_start.sh"
+		}
+	],
+	"livenessProbe": {
+	    "exec": {
+	        "command": ["/usr/local/bin/health_ck"]
+	    },
+	    "initialDelaySeconds": 5,
+	    "periodSeconds": 15
+	},
+	"messaging": {
+		"ports": [
+			{
+				"name": "rmr-data",
+				"container": "mcxapp",
+				"port": 4560,
+				"rxMessages":
+				[
+					"RIC_UE_CONTEXT_RELEASE",
+					"RIC_SGNB_ADDITION_REQ",
+					"RIC_SGNB_ADDITION_ACK",
+					"RIC_SGNB_ADDITION_REJECT",
+					"RIC_SGNB_RECONF_COMPLETE",
+					"RIC_RRC_TRANSFER",
+					"RIC_SGNB_MOD_REQUEST",
+					"RIC_SGNB_MOD_REQUEST_ACK",
+					"RIC_SGNB_MOD_REQUEST_REJ",
+					"RIC_SGNB_MOD_REQUIRED",
+					"RIC_SGNB_MOD_CONFIRM",
+					"RIC_SGNB_MOD_REFUSE",
+					"RIC_SGNB_RELEASE_REQUEST",
+					"RIC_SGNB_RELEASE_REQUEST_ACK",
+					"RIC_SGNB_RELEASE_REQUIRED",
+					"RIC_SGNB_RELEASE_CONFIRM",
+					"RIC_SECONDARY_RAT_DATA_USAGE_REPORT"					
+				],
+				"description": "rmr receive data port for mcxapp"
+			},
+			{
+				"name": "rmr-data-out1",
+				"container": "mcxapp",
+				"port": 4562,
+				"txMessages":
+				[
+					"MC_REPORT"
+				],
+				"description": "rmr send data port for mcxapp"
+			},			
+			{
+				"name": "rmr_route",
+				"container": "mcxapp",
+				"port": 4561,
+				"description": "rmr route port for mcxapp"
+			}
+		]
+	},
+	"controls": {
+		"ves_collector_address": "xapp-sandbox2.research.att.com:8888",
+		"measurement_interval": 10000,
+		"simulator_mode": "true",
+		"debug_mode": "true"
+	},
+	"rmr":{
+       "protPort": "tcp:4560",
+       "maxSize": 2072,
+       "numWorkers": 1,
+       "txMessages": [
+			"MC_REPORT"
+	   ],			   
+       "rxMessages": [
+			"RIC_UE_CONTEXT_RELEASE",
+			"RIC_SGNB_ADDITION_REQ",
+			"RIC_SGNB_ADDITION_ACK",
+			"RIC_SGNB_ADDITION_REJECT",
+			"RIC_SGNB_RECONF_COMPLETE",
+			"RIC_RRC_TRANSFER",
+			"RIC_SGNB_MOD_REQUEST",
+			"RIC_SGNB_MOD_REQUEST_ACK",
+			"RIC_SGNB_MOD_REQUEST_REJ",
+			"RIC_SGNB_MOD_REQUIRED",
+			"RIC_SGNB_MOD_CONFIRM",
+			"RIC_SGNB_MOD_REFUSE",
+			"RIC_SGNB_RELEASE_REQUEST",
+			"RIC_SGNB_RELEASE_REQUEST_ACK",
+			"RIC_SGNB_RELEASE_REQUIRED",
+			"RIC_SGNB_RELEASE_CONFIRM",
+			"RIC_SECONDARY_RAT_DATA_USAGE_REPORT"
+	]
+   }
+}

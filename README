@@ -1,0 +1,22 @@
+
+This repo contains source and documentation for the Management Campaign (MC) xAPP.
+
+The following is a list of important directories at the root level of
+the repo and a brief description of each.
+
+mc-core
+This is the source for the core MC application
+
+sidecars
+The MC application currently uses at least one "sidecar" container to
+listen for messages and to funnel them in. This directory contains
+one subdirectory per sidecar application.
+
+ci
+This is the continuous integration directory. Within the ci directory
+are subdirectories for each docker image which is created to support
+the application.
+
+docs
+Project documentation in a form which can be scraped from the repo and pushed
+to a "free standing" document hosting site.

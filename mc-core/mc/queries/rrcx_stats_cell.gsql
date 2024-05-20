@@ -1,0 +1,30 @@
+DEFINE{ 
+	max_lfta_disorder '1'; max_hfta_disorder '1'; real_time 'true';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+
+select $window*(tb+1) as TS, $window as measurementInterval,
+	physCellId as CELL_ID,
+	count(*) as cnt,
+	min(rsrp) as min_rsrp,
+	min(rsrp)+0.05*(max(rsrp)-min(rsrp)) as pctl_05_rsrp,
+	min(rsrp)+0.5*(max(rsrp)-min(rsrp)) as median_rsrp,
+	min(rsrp)+0.95*(max(rsrp)-min(rsrp)) as pctl_95_rsrp,
+	sqrt( sum(FLOAT(rsrp)*FLOAT(rsrp)) - sum(FLOAT(rsrp))*sum(FLOAT(rsrp))/count(*)) / count(*) as stddev_rsrp,
+	max(rsrp) as max_rsrp,
+	min(rsrq) as min_rsrq,
+	min(rsrq)+0.05*(max(rsrq)-min(rsrq)) as pctl_05_rsrq,
+	min(rsrq)+0.5*(max(rsrq)-min(rsrq)) as median_rsrq,
+	min(rsrq)+0.95*(max(rsrq)-min(rsrq)) as pctl_95_rsrq,
+	sqrt( sum(FLOAT(rsrq)*FLOAT(rsrq)) - sum(FLOAT(rsrq))*sum(FLOAT(rsrq))/count(*)) / count(*) as stddev_rsrq,
+	max(rsrq) as max_rsrq,
+	min(sinr) as min_sinr,
+	min(sinr)+0.05*(max(sinr)-min(sinr)) as pctl_05_sinr,
+	min(sinr)+0.5*(max(sinr)-min(sinr)) as median_sinr,
+	min(sinr)+0.95*(max(sinr)-min(sinr)) as pctl_95_sinr,
+	sqrt( sum(FLOAT(sinr)*FLOAT(sinr)) - sum(FLOAT(sinr))*sum(FLOAT(sinr))/count(*)) / count(*) as stddev_sinr,
+	max(sinr) as max_sinr
+from RRCXFER.serv_nr_cell
+where schemaId = 1
+group by systemTime/$window as tb, physCellId

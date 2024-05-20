@@ -1,0 +1,78 @@
+		<Interface Name='CONRELEASE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='con_release.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='RECONCOMPLETE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='concomp.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='RELCONF'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='relconf.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='RELREQ'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='relreq.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='RELREQACK'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='relreqack.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBRELEASERQD'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='release_rqd.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='RRCXFER'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='rrcx.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='ADDREQREJECT'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='addreqreject.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNB_ADDITION_REQ_ACK'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='addition_req_ack.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNB_ADDITION_REQ'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='addition_req.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODCONF'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='sgnbmodconf.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREQ'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='sgnbmodreq.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREFUSE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='sgnbmodrefuse.dat'/>
+			<StartUpDelay value='10'/>
+			<Verbose value='TRUE'/>
+		</Interface>

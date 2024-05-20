@@ -1,0 +1,4 @@
+---
+tag: '1.0.11'
+
+# this is used by the CI jobs to tag the image it builds

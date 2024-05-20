@@ -1,0 +1,146 @@
+
+--------------------------------------------------------------------------------
+
+	Copyright (c) 2018-2019 AT&T Intellectual Property.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+	   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+--------------------------------------------------------------------------------
+
+
+
+MC Listener
+
+This directory contains the source for the a simple message listener which 
+writes messages received via RMR into a fifo (named pipe) for an external
+process to consume. 
+
+Fifos are named MT_xxxxxxxx where the Xs are replaced with the message 
+type with up to 7 leading zeros (e.g. MT_00000002).  The data written 
+to a pipe has the form:
+	<8 bytes><n bytes>
+
+Where the first 8 bytes are the ASCII representation of the length of
+the message (n) (the 8th byte is a zero allowing the bytes to be
+treated as a C string if desired.  The next n bytes are the unchanged 
+payload which was received.  No RMR header information (e.g. source, 
+meid, etc.) is communicated.
+
+If the listener is executed with the timestamp extension enabled, then
+the leading 'header' is enhanced such that the time the message was
+received by the listener is added.  Additionally, a leading delimiter
+is added to make synchronisation possible. The timestamp is also an 
+ASCII string of the form 1570110224356 (milliseconds past the epoch).  
+The enhanced header has the format:
+
+	<delimeter><length-bytes><time-bytes>
+
+The <delimeter> is a series of 4 bytes which should always be: '@MCL'.
+It is intended to be used to sequence "frames" in the pipe should there be
+write errors which result in missing data.  If the application reading from
+a pipe does not see this delimeter, then it should read byte by byte from
+the pipe until it does in order to synchronise with the stream.
+
+The <length-bytes> are as descrbed previously: 8 byte ASCII string (nil 
+terminated).
+
+The <time-bytes> is an ASCII string (nil terminated) with a length of 16
+bytes. 
+
+The entire header will require 28 bytes.
+	
+
+There are multiple docker files; *.df.
+	mcl_runime.df -- builds an image with the runtime mc_listener binary
+	mcl_dev.df    -- builds a development image that can be used to
+					 interactively build and test the library and mc_listener
+					 application.
+
+Unit testing
+A very small set of unit tests are provided for the library functions in
+mcl.c.  Because of the nature of the fanout function, which blocks waiting
+on RMR messages, it is not possible to unit test that bit of code.
+
+
+Data Capture
+In addition to writing received messages to a FIFO, each message is 
+captured in a raw data file. These files are created in a staging
+directory (/tmp/rdc/stage by default) and moved to a final directory
+(/tmp/rdc/final by default) every 5 minutes (300 seconds).  The files
+are named MCLT[src]_<timestamp><.suffix>; the default suffix is ".rdc".
+The "src" string is optional and can be used to disabmiguate files
+if merged with capture files from different environments.
+
+The data capture is controlled by setting environment variables:
+
+ MCL_RDC_ENABLE: If set to 0 the raw data capture will be disabled.
+				(It is on by default if this variable is not defined.)
+
+ MCL_RDC_STAGE: overrides the directory where raw data capture 
+				files are staged.
+
+ MCL_RDC_FINAL: overrides the directory where raw data capture files 
+				are placed for export.
+
+ MCL_RDC_SUFFIX: the suffix written on each raw data capture file; 
+				must include '.' if a dot is desired and is written only on
+				the final file (not the staged file).
+
+ MCL_RDC_SOURCE: a short string used as source identification in rdc file names.
+				This defaults to nothing and should begin, but not end,
+				with an underbar (e.g. _host1).
+
+ MCL_RDC_FREQ: The frequency with which files are closed and moved from the
+				staging to final directory. The default if 300 sec.
+
+The captured data is saved in the following format:
+	<delim><mtype><len><fifo-buffer>
+
+Where
+	<delim> is a 4 character delimiter for synchronisation (@RDC)
+
+	<mtype> is an 8 character field containing a nil terminated ACII
+		value that is the message type of the received message.
+
+	<len> is an 8 character field containing a nil terminated ASCII
+		value that is the length of the <fifo-buffer>
+
+	<fifo-buffer> is the exact contents that were written to the FIFO.
+
+Thus to "replay" the captured data, a decoder need read just the first 
+20 bytes, convert the message type and length, read the payload, and 
+then write the payload to a FIFO
+
+Staging and Final Directories
+If the staging and final directories (/tmp/rdc/stage and /tmp/rdc/final
+by default) are on the same filsystem, then the rename() system call is
+used to switch the inode reference to the file from one directory to the
+other. This is the preferred setup.  However, if it is not possible for
+these directories to exist on the same filesystem, then the listener will
+copy the file "manually." During the copy, the filename in the final 
+directory will have a leading dot (.) charcter, and the file will be 
+created with a write only by owner mode (0200) and not switched to readable
+until after it is closed; just before renaming it to remove the leading 
+dot. 
+
+Any file capture utillity should either ignore files with leading dot
+characters, or files which do not have a read bit set in their mode. 
+
+
+
+FIFO Reader
+The pipe_reader programme is a simple application which uses the mcl.c 
+library functions to open and read from a single pipe.  If the -e option
+is given it will expect that data in the FIFO has extended headers. Use
+the -? option (or -h) to generate a full usage statement.
+
+

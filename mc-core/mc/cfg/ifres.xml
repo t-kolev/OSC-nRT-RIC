@@ -1,0 +1,211 @@
+
+<Resources>
+	<Host Name='localhost'>
+		<Interface Name='CONRELEASE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010050'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='dc_release'/>
+			<SingleFile value='TRUE'/>
+			<FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='RATDATAUSAGE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010380'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='rat_data_usage'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='RECONCOMPLETE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010280'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='reconfig_all'/>
+			<Schemas value='reconfig_success'/>
+			<Schemas value='reconfig_reject'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='RELCONF'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010321'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_release_confirm_from_menb_erabs'/>
+			<Schemas value='sgnb_release_confirm_from_menb'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='RELREQ'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010310'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='release_req'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='RELREQACK'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010311'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='release_req_ack'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBRELEASERQD'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010320'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='SgNB_release_rqd'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='RRCXFER'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010350'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='serv_nr_cell'/>
+			<Schemas value='nr_neighbor'/>
+			<Schemas value='serv_cell_beam_csi'/>
+			<Schemas value='neighbor_beam_csi'/>
+			<Schemas value='serv_cell_beam_ssb'/>
+			<Schemas value='neighbor_beam_ssb'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='ADDREQREJECT'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010272'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_add_req_reject'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNB_ADDITION_REQ_ACK'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010271'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='eRABs_notadmitted_for_ue'/>
+			<Schemas value='eRABs_acked_for_admit_for_ue'/>
+			<Schemas value='SgNB_ack_for_ue_NRfreqs'/>
+			<Schemas value='SgNB_ack_for_add_mod_for_ue'/>
+			<Schemas value='SgNB_ack_for_ue_measurements'/>
+			<Schemas value='SgNB_ack_for_ue_beam_csi'/>
+			<Schemas value='SgNB_ack_for_ue_beam_ssb'/>
+			<Schemas value='add_req_ack_cellid'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNB_ADDITION_REQ'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010270'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_addreq_gtp_teid'/>
+			<Schemas value='sgnb_addreq_for_ue'/>
+			<Schemas value='sgnb_addreq_for_ue_bearers'/>
+			<Schemas value='sgnb_addreq_for_ue_sn_serv_ssb'/>
+			<Schemas value='sgnb_addreq_for_ue_sn_serv_csi_rs'/>
+			<Schemas value='sgnb_addreq_for_ue_mn_serv_ssb'/>
+			<Schemas value='sgnb_addreq_for_ue_mn_serv_csi_rs'/>
+			<Schemas value='sgnb_addreq_for_ue_sn_neigh_ssb'/>
+			<Schemas value='sgnb_addreq_for_ue_sn_neigh_csi_rs'/>
+			<Schemas value='sgnb_addreq_for_ue_mn_neigh_ssb'/>
+			<Schemas value='sgnb_addreq_for_ue_mn_neigh_csi_rs'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODCONF'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010301'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_mod_conf'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREQ'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010290'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_mod_req'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREQACK'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010291'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_mod_req_ack'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREQREJECT'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010292'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_mod_req_reject'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREQUIRED'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010300'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_mod_required'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SGNBMODREFUSE'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010302'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sgnb_mod_refuse'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+		<Interface Name='SNSTATUSXFER'>
+			<InterfaceType value='PROTO'/>
+			<Filename value='/tmp/mcl/fifos/MT_000010040'/>
+			<StartUpDelay value='10'/>
+			<Time_Correlation value='10'/>
+			<Verbose value='TRUE'/>
+			<Schemas value='sn_status_transfer'/>
+			<SingleFile value='TRUE'/>
+                        <FIFO value='TRUE'/>
+		</Interface>
+
+	</Host>
+</Resources>

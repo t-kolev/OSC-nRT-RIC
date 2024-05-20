@@ -1,0 +1,115 @@
+DEFINE{ query_name 'base_mod_req_failure_distribution'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes of a modification request failure (base)';
+}
+PARAM{ window uint;}
+select tb, gnb_id as GNB_ID, 
+	id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as cnt,
+	sum( EQ(failureType,0) ) as count_protobuf_unspecified,
+	sum( EQ(failureType,1) ) as count_t310_Expiry,
+	sum( EQ(failureType,2) ) as count_randomAccessProblem,
+	sum( EQ(failureType,3) ) as count_rlc_MaxNumRetx,
+	sum( EQ(failureType,4) ) as count_synchReconfigFailure_SCG,
+	sum( EQ(failureType,5) ) as count_scg_reconfigFailure,
+	sum( EQ(failureType,6) ) as count_srb3_IntegrityFailure
+From SGNBMODREQ.sgnb_mod_req
+group by timestamp_ms/$window as tb, gnb_id, 
+	id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'mod_req_failure_distribution'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes of a modification request failure';
+}
+PARAM{ window uint;}
+select ($window*(tb+1))/1000 as TS, GNB_ID, 
+	$window/1000.0 as measurementInterval,
+	sum(cnt) as cnt,
+	sum( count_protobuf_unspecified ) as count_protobuf_unspecified,
+	sum( count_t310_Expiry ) as count_t310_Expiry,
+	sum( count_randomAccessProblem ) as count_randomAccessProblem,
+	sum( count_rlc_MaxNumRetx ) as count_rlc_MaxNumRetx,
+	sum( count_synchReconfigFailure_SCG ) as count_synchReconfigFailure_SCG,
+	sum( count_scg_reconfigFailure ) as count_scg_reconfigFailure,
+	sum( count_srb3_IntegrityFailure ) as count_srb3_IntegrityFailure
+From base_mod_req_failure_distribution
+group by tb, GNB_ID
+;
+
+DEFINE{ query_name 'base_mod_req_failure_distribution_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes of a modification request failure (bas), labeled with gtp_teid';
+}
+PARAM{ window uint;}
+select b.tb, b.GNB_ID as GNB_ID, m.gTP_TEID,
+	b.cnt,
+	b.count_protobuf_unspecified,
+	b.count_t310_Expiry,
+	b.count_randomAccessProblem,
+	b.count_rlc_MaxNumRetx,
+	b.count_synchReconfigFailure_SCG,
+	b.count_scg_reconfigFailure,
+	b.count_srb3_IntegrityFailure
+LEFT_OUTER_JOIN from base_mod_req_failure_distribution b, gnb_ueid_teid_map m
+where b.tb=m.TB and b.GNB_ID=m.GNB_ID and  
+	b.id_MeNB_UE_X2AP_ID=m.id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'mod_req_failure_distribution_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes of a modification request failure';
+}
+PARAM{ window uint;}
+select ($window*(tb+1))/1000 as TS, GNB_ID, gTP_TEID,
+	$window/1000.0 as measurementInterval,
+	sum(cnt) as cnt,
+	sum( count_protobuf_unspecified ) as count_protobuf_unspecified,
+	sum( count_t310_Expiry ) as count_t310_Expiry,
+	sum( count_randomAccessProblem ) as count_randomAccessProblem,
+	sum( count_rlc_MaxNumRetx ) as count_rlc_MaxNumRetx,
+	sum( count_synchReconfigFailure_SCG ) as count_synchReconfigFailure_SCG,
+	sum( count_scg_reconfigFailure ) as count_scg_reconfigFailure,
+	sum( count_srb3_IntegrityFailure ) as count_srb3_IntegrityFailure
+From base_mod_req_failure_distribution_gtp_teid
+group by tb, GNB_ID, gTP_TEID
+;
+
+DEFINE{ query_name 'base_mod_req_failure_distribution_pci'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes of a modification request failure (bas), labeled with gtp_teid';
+}
+PARAM{ window uint;}
+select b.tb, b.GNB_ID as GNB_ID, m.physCellId,
+	b.cnt,
+	b.count_protobuf_unspecified,
+	b.count_t310_Expiry,
+	b.count_randomAccessProblem,
+	b.count_rlc_MaxNumRetx,
+	b.count_synchReconfigFailure_SCG,
+	b.count_scg_reconfigFailure,
+	b.count_srb3_IntegrityFailure
+LEFT_OUTER_JOIN from base_mod_req_failure_distribution b, gnb_ueid_cellid_map m
+where b.tb=m.TB and b.GNB_ID=m.GNB_ID and  
+	b.id_MeNB_UE_X2AP_ID=m.id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'mod_req_failure_distribution_pci'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes of a modification request failure';
+}
+PARAM{ window uint;}
+select ($window*(tb+1))/1000 as TS, GNB_ID, physCellId,
+	$window/1000.0 as measurementInterval,
+	sum(cnt) as cnt,
+	sum( count_protobuf_unspecified ) as count_protobuf_unspecified,
+	sum( count_t310_Expiry ) as count_t310_Expiry,
+	sum( count_randomAccessProblem ) as count_randomAccessProblem,
+	sum( count_rlc_MaxNumRetx ) as count_rlc_MaxNumRetx,
+	sum( count_synchReconfigFailure_SCG ) as count_synchReconfigFailure_SCG,
+	sum( count_scg_reconfigFailure ) as count_scg_reconfigFailure,
+	sum( count_srb3_IntegrityFailure ) as count_srb3_IntegrityFailure
+From base_mod_req_failure_distribution_pci
+group by tb, GNB_ID, physCellId
+
+

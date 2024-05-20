@@ -1,0 +1,139 @@
+DEFINE{query_name 'handovers_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+select r.timestamp_ms/$window as TB,
+	non_temporal(g.timestamp_ms) as timestamp_ms,
+	r.id_MeNB_UE_X2AP_ID,
+	r.id_SgNB_UE_X2AP_ID, g.gTP_TEID, g.gnb_id
+INNER_JOIN from SGNB_ADDITION_REQ.sgnb_addreq_gtp_teid g,
+	RECONCOMPLETE.reconfig_success r
+where 
+ r.id_MeNB_UE_X2AP_ID = g.id_MeNB_UE_X2AP_ID
+and r.timestamp_ms/$window = g.timestamp_ms/$window
+;
+
+DEFINE{ query_name 'handovers_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Number of handovers on a per-gtp_teid basis';
+}
+PARAM{ window uint;}
+
+//	Need to correlate with reconfiguration complete
+//		n_handovers, n_pingpong
+//	From raw sgnb_addreq_gtp_teid feed
+//		n_pingpong_attempts 
+Select ($window*(TB+1))/1000 as TS,
+	$window/1000.0 as measurementInterval,
+	gTP_TEID as GTP_TEID, GNB_ID,
+	count(*) as total_addition_requests,
+	count_diff(gnb_id) - 1 as n_handovers,
+	count(*) - count_diff(gnb_id) as n_ping_pong
+from handovers_join
+group by TB, gTP_TEID, gnb_id as GNB_ID
+;
+
+DEFINE{ query_name 'requests_per_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Number of sgnb addition requests requests per gTP_TEID';
+}
+PARAM{ window uint;}
+Select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID, gTP_TEID,
+	count(*) as n_requests
+from SGNB_ADDITION_REQ.sgnb_addreq_gtp_teid
+group by timestamp_ms/$window as tb, gnb_id, gTP_TEID
+;
+
+DEFINE{query_name 'gnb_ueid_teid_map';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Output the last known map from (gnb, gnb_ueid) to gtp_teid';
+}
+PARAM{ window uint;}
+Select TB, GNB_ID, id_SgNB_UE_X2AP_ID, id_MeNB_UE_X2AP_ID,
+	LAST(gTP_TEID) as gTP_TEID
+from handovers_join
+group by TB, gnb_id as GNB_ID, id_SgNB_UE_X2AP_ID, id_MeNB_UE_X2AP_ID
+CLOSING_WHEN ((TB+1)*$window-LAST(timestamp_ms))/1000.0 >= 3600
+;
+
+-------------------------------------------
+-- Handover counts
+
+DEFINE{query_name 'modification_confirm_count';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Number of sgnb modification confirms, by UE, part of handover count';
+}
+PARAM{ window uint;}
+Select TB, GNB_ID, id_SgNB_UE_X2AP_ID, id_MeNB_UE_X2AP_ID,
+	count(*) as cnt
+from SGNBMODCONF.sgnb_mod_conf 
+group by timestamp_ms/$window as TB, gnb_id as GNB_ID,
+	id_SgNB_UE_X2AP_ID, id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'modification_req_ack_count';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Number of sgnb modification request acknowledgements, by UE, part of handover count';
+}
+PARAM{ window uint;}
+Select TB, GNB_ID, id_SgNB_UE_X2AP_ID, id_MeNB_UE_X2AP_ID,
+	count(*) as cnt
+from SGNBMODREQACK.sgnb_mod_req_ack 
+group by timestamp_ms/$window as TB, gnb_id as GNB_ID,
+	id_SgNB_UE_X2AP_ID, id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'ho_count_events';}
+PARAM{ window uint; }
+merge p1.TB : p2.TB
+from modification_confirm_count p1, modification_req_ack_count p2
+;
+
+DEFINE{query_name 'ho_count_events_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Label ho count events with UE (gtp_teid)';
+}
+PARAM{ window uint;}
+Select h.TB, h.GNB_ID, m.gTP_TEID, cnt
+LEFT_OUTER_JOIN from ho_count_events h, gnb_ueid_teid_map m
+where h.TB=m.TB and h.id_MeNB_UE_X2AP_ID=m.id_MeNB_UE_X2AP_ID
+	and h.GNB_ID=m.GNB_ID
+;
+
+DEFINE{query_name 'ho_counts_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Number of handovers, by UE (gTP_TEID)';
+}
+PARAM{ window uint;}
+Select ($window*(TB+1))/1000 as TS, GNB_ID, gTP_TEID,
+	$window/1000.0 as measurementInterval,
+	sum(cnt) as n_handovers
+from ho_count_events_gtp_teid
+group by TB, GNB_ID, gTP_TEID
+;
+
+DEFINE{query_name 'gtp_teid_pci_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join erab_stats_join with gnb_ueid_cellid_map to create data stream for requests_per_gtp_teid_cell';
+}
+PARAM{ window uint; }
+select M.TB,  M.GNB_ID, M.physCellId, g.gTP_TEID
+INNER_JOIN from SGNB_ADDITION_REQ.sgnb_addreq_gtp_teid g, gnb_ueid_cellid_map M
+Where g.gnb_id=M.GNB_ID and g.id_MeNB_UE_X2AP_ID=M.id_MeNB_UE_X2AP_ID
+	and g.timestamp_ms/$window=M.TB
+;
+
+DEFINE{ query_name 'requests_per_gtp_teid_pci'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Number of sgnb addition requests requests per gTP_TEID';
+}
+PARAM{ window uint;}
+Select ($window*(TB+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	GNB_ID, gTP_TEID, physCellId,
+	count(*) as n_requests
+from gtp_teid_pci_join
+group by TB, GNB_ID, gTP_TEID, physCellId
+
+
+

@@ -1,0 +1,58 @@
+DEFINE{query_name 'add_req_start';}
+PARAM{ window uint; }
+select timestamp_ms as timestamp,
+	non_temporal(timestamp_ms) as start_time,
+	0ULL as end_time,
+	id_MeNB_UE_X2AP_ID as eUE_ID,
+	gnb_id,
+	0 as event_type
+from SGNB_ADDITION_REQ.sgnb_addreq_for_ue
+;
+
+DEFINE{query_name 'add_req_success';}
+PARAM{ window uint; }
+select timestamp_ms as timestamp,
+	0ULL as start_time,
+	non_temporal(timestamp_ms) as end_time,
+	id_MeNB_UE_X2AP_ID as eUE_ID,
+	gnb_id,
+	1 as event_type
+from RECONCOMPLETE.reconfig_success
+;
+
+DEFINE{query_name 'addreq_events';}
+PARAM{ window uint; }
+merge p1.timestamp : p2.timestamp
+from add_req_start p1, add_req_success p2
+;
+
+
+DEFINE{query_name 'addreq_success_time';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+select eUE_ID, gnb_id, TB, 
+	UINT(max(end_time)-max(start_time)) as success_time
+from addreq_events
+group by eUE_ID, gnb_id, timestamp / $window as TB
+having max(end_time)>0 and max(start_time)>0 and max(end_time)>max(start_time)
+;
+
+DEFINE{query_name 'addreq_success_stats';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the time to successfully make a DC connection';
+}
+PARAM{ window uint; }
+select gnb_id as GNB_ID,
+	($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+ 	MIN(success_time)/1000.0 as min_success_time,
+        MAX(success_time)/1000.0 as max_success_time,
+        AVG(success_time)/1000.0 as avg_success_time,
+	quantile_of(success_time, .05)/1000.0 as pctl_05_success_time,
+	quantile_of(success_time, .95)/1000.0 as pctl_95_success_time,
+	sqrt(
+		sum((success_time/1000.0)*(success_time/1000.0)) - sum(success_time/1000.0)*sum(success_time/1000.0)/count(*)
+	) / count(*) as stddev_success_time
+from addreq_success_time
+group by gnb_id, TB

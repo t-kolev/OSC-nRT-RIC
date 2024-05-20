@@ -1,0 +1,17 @@
+
+This directory contains "package" level scripts which are needed either
+for building the MC image, or are needed when starting or stopping
+the image in a container. These are not really a part of the xAPP.
+
+
+encode_json.py	-- reads a json file and generates the quoted output
+	suitable for passing on a curl command etc.
+
+j2src.py  -- parses the config file (descriptor file) to extract info
+	needed at the time the start script is run.
+
+xam_register.sh -- sends a register or unregister request to the xAPP
+	manager process.
+
+
+These scripts should all be copied to /playpen/bin in the image.
