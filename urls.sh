@@ -4,7 +4,7 @@
 URLS_FILE="osc_links.txt"
 
 # Remote branch
-REMOTE_BRANCH="mast/Users/tsvetan.k/Downloads/results-6.jsoner"
+REMOTE_BRANCH="master"
 
 # Check if the URLs file exists
 if [ ! -f "$URLS_FILE" ]; then
@@ -21,5 +21,7 @@ while IFS= read -r url; do
     git subtree add --prefix "$local_dir" "$url" "$REMOTE_BRANCH" --squash
     if [ $? -ne 0 ]; then
         echo "Error: Failed to add subtree for URL: $url"
+    else
+        echo "Subtree added successfully for URL: $url"
     fi
 done < "$URLS_FILE"
