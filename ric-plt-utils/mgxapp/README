@@ -1,0 +1,5 @@
+
+This utility is the Metrics Gateway (MG-xAPP). Its purpose is to
+listen for RMR messages and to forward the data from the messages
+to a collector.  Conversion to the collector's required input format
+is made allowing for a generic API for all other xAPPs.

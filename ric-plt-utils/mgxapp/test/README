@@ -1,0 +1,29 @@
+
+This directory contains all of the tests which can be run
+to vet the modules for the MG xAPP.
+
+Run the script unit_test.sh (ksh or bash) to build and execute
+each test. The script will leave the relivent .gcov files
+in the directory for any additional use. It will also provide
+a high level summary of the coverage of each of the modules.
+
+The data directory contians input files which are used during
+the tests.
+
+
+The test programmes are all named *_test.cpp. There are support
+tools also located in this directory:
+
+	ut_support.cpp  -- test tools used by all test programmes
+	parse_gcov.sh  -- script to parse .gcov files for summary
+	stats_sender.c -- A simple xAPP which sends RMR messages with
+					the metrics message type.
+
+It is possible to drive the unit tests from the top level CMake
+generated build environment:
+
+	mkdir .build
+	cd .build
+	cmake ..
+	make test ARGS="-V"
+

@@ -1,0 +1,81 @@
+.if false
+vi: ts=4 sw=4 noet:
+
+==================================================================================
+    Copyright (c) 2020 AT&T Intellectual Property.
+    Copyright (c) 2020 Nokia
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+==================================================================================
+
+.fi
+
+.if false
+
+    Mnemonic:	setup.im
+    Abstract:	Basic setup for documents in directories below this.
+				Provides macros that allow forward referencing of
+				variables.  The 'user' doc still must import the
+				cmd_master.im macro setup file when necessary.
+
+    Date:       10 July 2020
+    Author:     E. Scott Daniels
+.fi
+
+
+.gv semver
+.dv _v [ &{_major!0} 100 * &{_minor!0} 10 * + &{_patch!0} + ]]
+.if  _v 232 <
+	.dv _err ### ERROR ###  {X}fm version 2.3.2 or later is required to generate this doc
+	.qu
+.fi
+
+.gv e XFM_PATH xpath
+.if ! xpath
+	.gv e TFM_PATH xpath
+	.if ! xpath
+		.mg ### WARNING ###  XFM_PATH should be set to reference the shared imbed files; likely these are in /usr/local/share/xfm
+	.fi
+.fi
+
+.**	forward variable reference support
+.** define a 'subroutine' to add a variable and place it into the forward reference file
+.** fref_sub.ca contains code to execute by the set_fref macor and fref.ca contains the
+.** forward references to include during pass2. The macro set_ref will define the variable
+.** passed as $1 (name) with the value passed as $2 and will add it to the fref.ca file.
+.**
+.ca shift start _fref_sub.ca
+.** be careful... the next  "ca end" MUST be tab indented before {X} version 2.4.
+.** with  2.4 and after it can be space indented
+
+	.ca expand extend _fref.ca
+	.dv &vname &vval
+	.ca end
+.ca end
+.dv export_var .dv vname $1 ^: .dv vval $2 ^: .dv $1 $2 ^: .im _fref_sub.ca
+.dv export_fig  .dv vname $1 ^: .gv fig .ev ^`.dv vval ^^&_fig ^: ^`  .im _fref_sub.ca
+.dv export_tab  .dv vname $1 ^: .gv table .ev ^`.dv vval ^^&_table ^` ^: .im _fref_sub.ca
+
+
+
+
+.** imbed pass 1 generated variables, or ensure file is reset
+.gv e PASS _pass
+.if &_pass 2 =
+    .im _fref.ca
+.ei
+    .ca start _fref.ca
+.ca end
+.fi
+
+.hn off

@@ -1,0 +1,52 @@
+
+This repo houses various platform utility projects. Each project
+is managed in a separate subdirectory under the repo root. The
+organisation of the proejct is not mandated; what ever makes
+sense for the project should be used. Please refer to the
+README at the project's root directory for project details.
+
+Projects are likely to maintain the following files in their
+top level directory:
+	README
+	CHANGES
+	STYLE
+	Dockerfile
+	TESTING
+	xapp-descriptor/config.json
+
+While these files aren't required, they are stronly encouraged.
+
+Unfortunately, due to the CI organisation it is not possible to
+completely segregated the projects. The overlapping directories
+are described below.
+
+Docs
+The CI jobs which move documentation to a remote repository
+do not generate the documentation during the execution of the
+job, but expect that the repo contains already formatted
+documentation in a known directory: docs/.  This means that
+all project documents being made available for the CI automation
+to move will have to reside in the same location.  To avoid
+conflicting document names, the project directory is expected
+to be used as a prefix to all of the files in docs/. For
+example, mgxapp_ will be used for the Metrics Generator xAPP's
+documentation.
+
+
+Release Triggers
+The CI job(s) which build and push packages and images are triggered
+by file changes in the releases directory.  The CI automation
+permits multiple files to reside in this directory and keys
+on a single file change.  All files in the releases directory
+are also epected to have the project name used as the prefix.
+Unless it is impossible, there should be only one release file
+per project (not one for each version).
+
+
+Non-Project Files
+The CI jobs also require a smattering of files at the root of
+the repo which are not for the use of the project. These include:
+
+	INFO.yaml -- describes the repo, commiters, and owners
+	tox.ini   -- required for CI document scraping
+	.readthedocs.yaml -- required for CI document scraping
