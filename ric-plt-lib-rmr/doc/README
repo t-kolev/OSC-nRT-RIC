@@ -1,0 +1,18 @@
+
+Documentation for RMR.
+
+Most (all?) documentation for RMR is built from source ({X)fm, or other text
+formatter source, not the RMR code) rather than hand editing the output 
+(markdown/rst) files.  This allows for more control over the output, a wider 
+variety of output types, and (most importantly) the generation of multiple 
+output from the same source (e.g. man pages can be rendered in troff which 
+the man command required, and also rendered as .rst or .md files which some 
+wikis prefer, and as PDF which can be easily distributed).
+
+Thus, there is a source file below this directory which has the document
+source.  Directories are as follows:
+
+	man		Manual pages included with the development package
+
+	rtd		Source to generate the .rst files for the "read the docs"
+			repo scraper.

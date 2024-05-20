@@ -1,0 +1,61 @@
+.** vim: ts=4 noet sw=4:
+.if false
+==================================================================================
+	Copyright (c) 2019 Nokia
+	Copyright (c) 2018-2019 AT&T Intellectual Property.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+==================================================================================
+.fi
+
+
+.if false
+	Mnemonic:	config-deploy.xfm
+	Abstract:	Source to generate a configuration delployment guide.
+	Date:		6 November 2019
+	Author:		E. Scott Daniels
+.fi
+
+.gv e LIB lib
+.dv lib &{lib!..}
+
+.dv GEN_TITLE 1
+.dv doc_title Configuration and Deployment
+
+.im setup.im
+
+&h1(Overview)
+
+The RIC Message Router (RMR) is a library for peer-to-peer
+communication.  Applications use the library to send and receive
+messages where the message routing and endpoint selection is based on
+the message type rather than DNS host name-IP port combinations.
+&space
+This document contains information regarding the configuration of RMR
+when it is embedded by a &ital(user application).  RMR itself is a
+library, not a deployable entity.
+
+&h2(Configuration)
+
+Many aspects of RMR behavior are controlled via environment variables.
+These values are read when a user application invokes the RMR
+initialization function.  This allows these variables to be set before
+the application is started as a function of the true environment, or
+set by the application as a means for the application to influence
+RMR's behaviour.  The following is a list of environment variables
+which RMR recognizes. Also see the main RMR manual page in the
+development package for more details.
+
+
+.** use the same list which is used in the manual pages
+.im &{lib}/man/env_var_list.im

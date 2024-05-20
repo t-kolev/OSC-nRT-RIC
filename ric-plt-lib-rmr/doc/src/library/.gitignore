@@ -1,0 +1,10 @@
+*.ca
+*.bncfile
+*.ecnfile
+*.ps
+*.pdf
+*.txt
+*.rst
+*.md
+*.toc
+*.sp
