@@ -1,0 +1,69 @@
+open_cli_schema_version: 1.0
+
+name: get-policy-instance
+
+description: Get all the policy instances
+
+version: sample-1.0
+
+info:
+  product: o-ran
+  service: a1-p
+  author: ONAP CLI Team onap-discuss@lists.onap.org
+
+parameters:
+    - name: policy-type-id
+      description: policy-type-id
+      long_option: policy-type-id
+      short_option: r 
+      default_value: 0
+      type: digit
+      is_optional: false
+    - name: policy-instance-id
+      description: policy-instance-id
+      long_option: policy-instance-id
+      short_option: q
+      default_value: 0
+      type: digit
+      is_optional: false
+
+results:
+    direction: portrait
+    attributes:
+      - name: blocking-rate 
+        description: blocking-rate
+        type: digit
+        scope: short
+      - name: enforce
+        description: enforce
+        type: bool
+        scope: short
+      - name: trigger-threshold
+        description: trigger
+        type: digit
+        scope: short
+      - name: window-length
+        description: window length 
+        type: string
+        scope: short
+
+http:
+    request:
+        uri: /a1-p/policytypes/${policy-type-id}/policies/${policy-instance-id}
+        method: GET
+
+    service:
+        name: o1-mediator
+        version: v1
+        auth: none
+        mode: direct
+
+    success_codes:
+        - 200
+        - 201
+
+    result_map:
+        blocking-rate: $b{blocking_rate}
+        enforce: $b{enforce}
+        trigger-threshold: $b{trigger_threshold}
+        window-length: $b{window_length}
