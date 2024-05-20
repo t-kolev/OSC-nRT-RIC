@@ -1,0 +1,64 @@
+{
+	"comment":  "describes the xAPP for sgxapp",
+    "xapp_name": "sgxapp",
+    "version": "1.0.0",
+    "containers": [
+        {
+            "name": "sgxapp",
+            "image": {
+                "registry": "nexus3.o-ran-sc.org:10002",
+                "name": "o-ran-sc/ric-app-sg",
+                "tag": "1.0.0"
+            },
+            "command": "/usr/local/bin/munchkin"
+        }
+    ],
+
+    "livenessProbe": {
+        "exec": {
+            "command": ["/usr/local/bin/rmr_probe"]
+        },
+        "initialDelaySeconds": 5,
+        "periodSeconds": 15
+    },
+
+    "messaging": {
+		"comment": "force no port to be found",
+        "ports": [
+            {
+                "name": "bad-data",
+                "container": "mgxapp",
+                "port": 4560,
+                "rxMessages":
+                [
+                    "RIC_METRICS"
+                ],
+                "description": "sgxapp listens on this port for RMR messages."
+            },
+            {
+                "name": "rmr_route",
+                "container": "mgxapp",
+                "port": 4561,
+                "description": "sgxapp listens on this port for RMR route messages"
+            }
+        ]
+    },
+
+    "controls": {
+		"env_overrides": true,
+        "collector_url": "http://ves_collector:1234",
+        "log_level": "warnings",
+		"wait4rt":	false,
+		"hr_logging": true,
+    },
+
+    "rmr":{
+       "protPort": "tcp:4560",
+       "maxSize": 4096,
+       "numWorkers": 1,
+       "txMessages": [ ],
+       "rxMessages": [
+            "RIC_METRICS"
+    ]
+   }
+}

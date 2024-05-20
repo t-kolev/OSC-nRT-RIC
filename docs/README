@@ -1,0 +1,9 @@
+
+This directory is a common area where all utilty documentation is
+placed to be scraped and pushed to a publication spot. Each document
+in this directory is expected to have a unique filename prefix (e.g.
+mgxapp_ for the metrics gateway xAPP) to avoid duplications for the
+common names such as user_guide.rst.
+
+Exceptions to this are the obvious common files such as the overall
+document index. 

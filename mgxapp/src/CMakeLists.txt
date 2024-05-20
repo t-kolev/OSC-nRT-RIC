@@ -1,0 +1,34 @@
+#
+#==================================================================================
+#	Copyright (c) 2020 Nokia
+#	Copyright (c) 2020 AT&T Intellectual Property.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#==================================================================================
+#
+
+# build the binaries in this directory using the ../lib/libmunch.a
+# as the base.  Requires xAPP framework, mdclog and rmr from the
+# RIC package cloud. Also rquires libcurlpp and libcurl.
+#
+set( ric_libs ricxfcpp;rmr_si;mdclog )
+set( sys_libs curlpp;curl;pthread;m )
+
+add_executable( munchkin munchkin.cpp )
+include_directories( ../lib )
+target_link_libraries( munchkin munch;${ric_libs};${sys_libs} )
+
+install(
+	TARGETS munchkin
+	DESTINATION bin
+)

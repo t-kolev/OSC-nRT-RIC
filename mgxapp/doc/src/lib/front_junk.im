@@ -1,0 +1,130 @@
+.if false
+vi: ts=4 sw=4 noet:
+
+==================================================================================
+    Copyright (c) 2020 AT&T Intellectual Property.
+    Copyright (c) 2020 Nokia
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+==================================================================================
+.fi
+
+.if false
+	Mnemonic:	front_junk.im
+	Abstract:	Adds a title page, license page and table of contents for postscript
+				documents. For others it imbeds the license file which might
+				generate comments into the resulting output if the output type
+				supports it.
+
+				This file may be embedded before any common macro definitions
+				are defined/imbedded.
+
+	Date:		10 July 2020
+	Author:		E. Scott Daniels
+.fi
+
+.gv e XFM_OUTPUT_TYPE ot
+
+.** postscript output goes into the document itself
+.if [ "&{ot!missing}" "ps" "postscript" "PS" "Postscript" "generic_ps" Match ]
+	.dh 1 p=12
+	.dh 2 p=10
+	.dh 3 p=10
+	.dh 4 p=10
+
+	.pn off
+	.ll 6i
+
+	.if doc_title
+		.bc start
+		.sf Helvetica-bold
+		.st 18p
+		.sp 10
+		&doc_title
+		.if doc_subtitle
+			.st 12p
+			.br
+			&doc_subtitle
+		.fi
+		.bc end
+
+		.if original_date
+			.sy  600p
+			.st 10p
+			.sf Helvetica
+			Original: &original_date
+			.gv Date
+			.br
+			Revised: &_date
+		.fi
+
+		.pa
+	.fi
+
+	.sf &{text_font!Helvetica}
+	.st &{text_size!10p}
+
+	.im lib/license.im
+
+	.gv e PASS _pass
+	.if &{_pass!1} 1 =
+		.tc on w=8.5i i=1.0i
+	.ei
+		.pn off
+		.pa
+		.pn on 0 roman center noline
+		.im &{doc_name}.toc
+		.pa
+		.pn on 0 center f=%d noline
+	.fi
+
+	.dv _comment_sym %
+.ei
+	.if [ "&{ot!missing} "rst" "RST" Match ]
+		.dv _comment_sym ..
+	.fi
+.fi
+
+
+.** if we have a "raw" comment symbol that can be used, put out the
+.** licence as a comment in the doc which we assume is NOT shown when
+.** the doc is rendered. We use a capture file so that we can expand the
+.** comment symbols yet still have a no format imbed.
+.**
+.if _comment_sym
+.ca expand start _raw_lic.ca
+.pu
+.in 0i
+.ai
+
+&_comment_sym This work is licensed under a Creative Commons Attribution 4.0
+&_comment_sym International License.  SPDX-License-Identifier: CC-BY-4.0
+
+.fo
+.sp 1
+
+.ai
+
+&_comment_sym CAUTION: this document is generated from source in mgxapp/doc/src/.
+&_comment_sym To make changes edit the source and recompile the document.
+&_comment_sym Do NOT make changes directly to .rst or ^.md files.
+
+.fo
+.sp 2
+
+.po
+.ca end
+
+.im _raw_lic.ca
+.fi
+

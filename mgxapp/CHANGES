@@ -1,0 +1,13 @@
+
+# This file contains a brief summary of each version bump, and is
+# used to generate a   scrapable rst documentation. The release
+# tag causes a header to  be written with the last token on the line.
+
+# release= Cherry
+
+2020 July 23; Version 1.1.0
+	Couple of bug fixes and shift to version 2.*.* of the C++ framework.
+
+2020 July 14; version 1.0.0
+	Initial release of Metrics Gateway.
+
