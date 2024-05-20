@@ -1,0 +1,47 @@
+open_cli_schema_version: 1.0
+
+name: get-policy-instances
+
+description: Get all the policy instances
+
+version: sample-1.0
+
+info:
+  product: o-ran
+  service: a1-p
+  author: ONAP CLI Team onap-discuss@lists.onap.org
+
+parameters:
+    - name: policy-type-id
+      description: policy-type-id
+      long_option: policy-type-id
+      short_option: r 
+      default_value: 0
+      type: digit
+      is_optional: false
+
+results:
+    direction: landscape
+    attributes:
+      - name: policy-instance-id
+        description: policy type id
+        type: string
+        scope: short
+
+http:
+    request:
+        uri: /a1-p/policytypes/${policy-type-id}/policies
+        method: GET
+
+    service:
+        name: o1-mediator
+        version: v1
+        auth: none
+        mode: direct
+
+    success_codes:
+        - 200
+        - 201
+
+    result_map:
+        policy-instance-id: $b{[*]}

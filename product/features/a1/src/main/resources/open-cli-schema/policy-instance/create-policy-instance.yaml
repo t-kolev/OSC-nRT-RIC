@@ -1,0 +1,96 @@
+# Copyright (c) 2021 Samsung
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#    This source code is part of the near-RT RIC (RAN Intelligent Controller)
+#   platform project (RICP).
+
+open_cli_schema_version: 1.0
+
+name: create-policy-instance
+
+description: create policy instace
+
+version: sample-1.0
+
+info:
+  product: o-ran
+  service: a1-p
+  author: ONAP CLI Team onap-discuss@lists.onap.org
+
+parameters:
+    - name: policy-type-id
+      description: policy-type-id
+      long_option: policy-type-id
+      short_option: r 
+      default_value: 0
+      type: digit
+      is_optional: false
+    - name: policy-instance-id
+      description: policy-instance-id
+      long_option: policy-instance-id
+      short_option: q
+      default_value: 0
+      type: digit
+      is_optional: false
+    - name: blocking-rate
+      description: blocking-rate
+      long_option: blocking-rate
+      short_option: b
+      default_value: 0
+      type: digit
+      is_optional: false
+    - name: enforce
+      description: enforce
+      long_option: enforce
+      short_option: e 
+      default_value: true
+      type: bool
+      is_optional: false
+    - name: tri-threshold
+      description: tri-threshold
+      long_option: tri-threshold
+      short_option: x 
+      default_value: 0
+      type: digit
+      is_optional: false  
+    - name: window-length
+      description: window-length
+      long_option: window-length
+      short_option: w 
+      default_value: 0
+      type: digit
+      is_optional: false
+
+#results:
+#    direction: landscape
+#    attributes:
+#      - name: policy-type-id
+#        description: policy type id
+#        type: string
+#        scope: short
+
+http:
+    request:
+        uri: /a1-p/policytypes/${policy-type-id}/policies/${policy-instance-id}
+        method: PUT
+        body: '{"blocking_rate": ${blocking-rate}, "enforce": ${enforce}, "trigger_threshold": ${tri-threshold}, "window_length": ${window-length}}'
+
+    service:
+        name: o1-mediator
+        version: v1
+        auth: none
+        mode: direct
+
+    success_codes:
+        - 202
