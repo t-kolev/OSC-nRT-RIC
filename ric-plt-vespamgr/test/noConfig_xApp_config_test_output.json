@@ -1,0 +1,78 @@
+[
+    {
+        "metadata": { },
+        "descriptor": { },
+        "config_1": {
+            "local": {
+                "host": ":8080"
+            },
+            "logger": {
+                "level": 5
+            },
+            "measurements": [
+                {
+                    "moId": "SEP-12/XAPP-1",
+                    "measType": "X2",
+                    "measId": "9001",
+                    "measInterval": "60",
+                    "metrics": [
+                        {
+                            "name": "App1ExampleCounterOne",
+                            "objectName": "App1ExampleCounterOneObject",
+                            "objectInstance": "App1ExampleCounterOneObjectInstance",
+                            "counterId": "0011",
+                            "type": "counter",
+                            "description": "Example counter 1"
+                        },
+                        {
+                            "name": "App1ExampleCounterTwo",
+                            "objectName": "App1ExampleCounterTwoObject",
+                            "objectInstance": "App1ExampleCounterTwoObjectInstance",
+                            "counterId": "0012",
+                            "type": "counter",
+                            "description": "Example counter 2"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "metadata": {},
+        "descriptor": {},
+        "config": {
+            "local": {
+                "host": ":8080"
+            },
+            "logger": {
+                "level": 3
+            },
+            "measurements": [
+                {
+                    "moId": "SEP-12/XAPP-2",
+                    "measType": "X2",
+                    "measId": "9002",
+                    "measInterval": "60",
+                    "metrics": [
+                        {
+                            "name": "App2ExampleCounterOne",
+                            "objectName": "App2ExampleCounterOneObject",
+                            "objectInstance": "App2ExampleCounterOneObjectInstance",
+                            "counterId": "0021",
+                            "type": "counter",
+                            "description": "Example counter 1"
+                        },
+                        {
+                            "name": "App2ExampleCounterTwo",
+                            "objectName": "App2ExampleCounterTwoObject",
+                            "objectInstance": "App2ExampleCounterTwoObjectInstance",
+                            "counterId": "0022",
+                            "type": "counter",
+                            "description": "Example counter 2"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+]
