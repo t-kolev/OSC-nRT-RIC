@@ -1,0 +1,91 @@
+Name:     sdl
+Version:  1.6.0
+Release:  1%{?dist}
+Summary:  C++ API library for Shared Data Layer clients
+
+License:  Apache-2
+URL:      https://gerrit.o-ran-sc.org/r/admin/repos/ric-plt/sdl
+
+BuildRequires: pkgconfig
+BuildRequires: gcc
+BuildRequires: autoconf
+BuildRequires: autoconf-archive
+BuildRequires: automake
+BuildRequires: make
+BuildRequires: gawk
+BuildRequires: libtool
+BuildRequires: boost-devel
+BuildRequires: pkgconfig(hiredis)
+
+%description
+%{name} provices a C++ API library for Shared Data Layer clients
+
+%package devel
+Summary:   Development files for %{name}
+Requires:  %{name}%{?isa} = %{version}-%{release}
+
+%description devel
+The %{name}-devel package contains libraries and header files for
+developing applications that use %{name}.
+
+%build
+./autogen.sh
+%configure
+%make_build
+
+%install
+%make_install
+rm -f %{buildroot}%{_libdir}/lib*.*a
+
+%post -p /sbin/ldconfig
+
+%files
+%{_libdir}/*.so.*
+%{_bindir}/sdltool
+
+%files devel
+%{_libdir}/pkgconfig/libsdl.pc
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/*.pc
+%{_includedir}/sdl
+
+%changelog
+* Thu Mar 10 2022 Petri Ovaska <petri.ovaska@nokia.com> - 1.6.0-1
+- Enable redis/sentinel port and sentinel master name configuration
+
+* Fri Sep 17 2021 Petri Ovaska <petri.ovaska@nokia.com> - 1.5.1-1
+- Add set, get and listKeys -sdltool CLI commands
+
+* Fri Sep 17 2021 Petri Ovaska <petri.ovaska@nokia.com> - 1.5.0-1
+- New listKeys API to support glob-style search pattern
+- Deprecated old findKeys and findKeysAsync API
+
+* Wed Aug 11 2021 Timo Tietavainen <timo.tietavainen@nokia.com> - 1.4.0-1
+- Add synchronous readiness check API
+
+* Thu Aug 05 2021 Timo Tietavainen <timo.tietavainen@nokia.com> - 1.3.0-1
+- Definable timeout for DB backend readiness in synchronous SDL API
+- Fix SDL configuration file path Valgrind errors
+
+* Mon May 31 2021 Petri Ovaska <petri.ovaska@nokia.com> - 1.2.1-1
+- Multiple DBAAS Redis standalone groups
+
+* Wed May 26 2021 Petri Ovaska <petri.ovaska@nokia.com> - 1.2.0-1
+- Multiple DBAAS Redis Sentinel groups
+- New namespace (--ns) option in sdltool test-get-set -command
+
+* Sat May 16 2020 Timo Tietavainen <timo.tietavainen@nokia.com> - 1.1.3-1
+- Rename rpm and Debian makefile targets to rpm-pkg and deb-pkg.
+- Update CI Dockerfile to utilize rpm-pkg and deb-pkg makefile targets.
+
+* Fri May 15 2020 Timo Tietavainen <timo.tietavainen@nokia.com> - 1.1.2-1
+- Add makefile targets to build rpm and Debian packages.
+
+* Mon May 11 2020 Timo Tietavainen <timo.tietavainen@nokia.com> - 1.1.1-1
+- Add unit test code coverage (gcov) make target.
+
+* Thu Jan 09 2020 Timo Tietavainen <timo.tietavainen@nokia.com> - 1.1.0-1
+- Add public helper classes for UT mocking.
+
+* Tue Nov 12 2019 Rolf Badorek <rolf.badorek@nokia.com> - 1.0.4-1
+- first version
