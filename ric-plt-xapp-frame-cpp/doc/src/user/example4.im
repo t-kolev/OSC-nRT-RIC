@@ -1,0 +1,38 @@
+.if false
+==================================================================================
+    Copyright (c) 2020 Nokia
+    Copyright (c) 2020 AT&T Intellectual Property.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+==================================================================================
+.fi
+
+&h2(Alarm Generation)
+This is an extension of a previous example which sends an alarm
+during initialisation and clears the alarm as soon as messages
+are being received.
+It is unknown if this is the type of alarm that is expected at the
+collector, but illustrates how an alarm is allocated, raised and
+cleared.
+
+
+&space
+&indent
+.** pull in the code from the example directory
+&ex_start
+.im  j=start-example ../../../examples/xapp_alarm.cpp
+&ex_end
+&fig_cen( Simple looping sender application with alarm generation. )
+&uindent
+&space
+
