@@ -1,0 +1,69 @@
+#
+# This file contains various administrative aspects of the (sub)project
+# it is used for management of committers as well general information
+# about the project
+#
+---
+project: 'ric_plt_streaming_protobufs'
+project_creation_date: '2019-11-08'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &oran_ric_plt_streaming_protobufs_ptl
+    name: 'Thoralf Czichy'
+    email: 'thoralf.czichy@nokia.com'
+    id: 'czichy'
+    company: 'Nokia'
+    timezone: 'America/New_York'
+primary_contact: *oran_ric_plt_streaming_protobufs_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.o-ran-sc.org/projects/'
+    key: 'ric_plt_streaming_protobufs'
+mailing_list:
+    type: 'groups.io'
+    url: 'technical-discuss@lists.o-ran-sc.org'
+    tag: '[]'
+realtime_discussion:
+    type: 'irc'
+    server: 'freenode.net'
+    channel: '#oran'
+meetings:
+    - type: 'gotomeeting+irc'
+      agenda: 'https://wiki.o-ran-sc.org/display/'
+      url: ''
+      server: 'freenode.net'
+      channel: '#oran'
+      repeats: ''
+      time: ''
+repositories:
+    - ric-plt/streaming-protobufs
+committers:
+    - <<: *oran_ric_plt_streaming_protobufs_ptl
+    - name: 'Timo Tietavainen'
+      email: 'timo.tietavainen@nokia.com'
+      company: 'nokia'
+      id: 'tietavai'
+      timezone: 'Europe/Helsinki'
+    - name: 'Petri Ovaska'
+      email: 'petri.ovaska@nokia.com'
+      company: 'nokia'
+      id: 'povaska'
+      timezone: 'Europe/Helsinki'
+    - name: 'Jussi Maki Aijala'
+      email: 'jussi.maki-aijala@nokia.com'
+      company: 'nokia'
+      id: 'makiaija'
+      timezone: 'Europe/Helsinki'
+tsc:
+    # yamllint disable rule:line-length
+    approval: 'https://wiki.o-ran-sc.org/display/TOC/2019+Q4-Oct%2C+Nov%2C+Dec#id-2019Q4-Oct,Nov,Dec-20191002'
+    changes:
+        - type: 'promotion'
+          name: 'Jussi Maki Aijala'
+          link: 'https://wiki.o-ran-sc.org/display/TOC/2019+Q4-Oct%2C+Nov%2C+Dec#id-2019Q4-Oct,Nov,Dec-20191002'
+        - type: 'Removal'
+          name: 'Rolf Badorek'
+          link: ''
+        - type: 'Promotion'
+          name: 'Petri Ovaska'
+          link: ''
