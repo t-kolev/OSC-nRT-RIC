@@ -1,0 +1,392 @@
+DEFINE{ query_name 'rrcx_pdf_neigh_gnb_csi'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam csi rsrp of neighboring cells, aggregated by gNB, computed from rrc transfer';
+}
+
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.neighbor_beam_csi
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+
+DEFINE{ query_name 'rrcx_pdf_serv_beam_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of serving cells, aggregated by gnb_id / cell id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.serv_cell_beam_ssb
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_beam_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of serving cells, aggregated by gnb_id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.serv_cell_beam_ssb
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_beam_menbue'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb beam rsrp of serving cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+select tb, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.serv_cell_beam_ssb
+group by timestamp_ms/$window as tb, gnb_id, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_beam_join'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb beam rsrp of serving cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+Select r.tb, r.GNB_ID, m.gTP_TEID, r.cnt,
+	r.rsrp_vbad, r.rsrp_bad, r.rsrp_medium, r.rsrp_good, r.rsrp_vgood
+LEFT_OUTER_JOIN from rrcx_pdf_serv_beam_menbue r, gnb_ueid_teid_map m
+Where r.GNB_ID=m.GNB_ID and r.id_SgNB_UE_X2AP_ID=m.id_SgNB_UE_X2AP_ID and r.tb=m.TB
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_beam_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb beam rsrp of serving cells aggregated by ue (gtp_teid), computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	GNB_ID, gTP_TEID,
+	sum(cnt) as cnt,
+	sum( rsrp_vbad ) as rsrp_vbad,
+	sum( rsrp_bad ) as rsrp_bad,
+	sum( rsrp_medium ) as rsrp_medium,
+	sum( rsrp_good ) as rsrp_good,
+	sum( rsrp_vgood ) as rsrp_vgood
+from rrcx_pdf_serv_beam_join
+group by tb, GNB_ID, gTP_TEID
+;
+
+
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_beam_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of neighboring cells, aggregated by gnb_id / cell id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.neighbor_beam_ssb
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_beam_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of neighboring cells, aggregated by gNB, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.neighbor_beam_ssb
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_beam_menbue'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of neighboring cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+select tb, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.neighbor_beam_ssb
+group by timestamp_ms/$window as tb, gnb_id, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_beam_join'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of neighboring cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+Select r.tb, r.GNB_ID, m.gTP_TEID, r.cnt,
+	r.rsrp_vbad, r.rsrp_bad, r.rsrp_medium, r.rsrp_good, r.rsrp_vgood
+LEFT_OUTER_JOIN from rrcx_pdf_neighbor_beam_menbue r, gnb_ueid_teid_map m
+Where r.GNB_ID=m.GNB_ID and r.id_SgNB_UE_X2AP_ID=m.id_SgNB_UE_X2AP_ID and r.tb=m.TB
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_beam_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the beam ssb rsrp of neighboring cells aggregated by ue (gtp_teid), computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	GNB_ID, gTP_TEID,
+	sum(cnt) as cnt,
+	sum( rsrp_vbad ) as rsrp_vbad,
+	sum( rsrp_bad ) as rsrp_bad,
+	sum( rsrp_medium ) as rsrp_medium,
+	sum( rsrp_good ) as rsrp_good,
+	sum( rsrp_vgood ) as rsrp_vgood
+from rrcx_pdf_neighbor_beam_join
+group by tb, GNB_ID, gTP_TEID
+;
+
+
+
+
+
+
+
+DEFINE{ query_name 'rrcx_pdf_serv_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of serving cell aggregated by cell id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.serv_nr_cell
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of the neighboring cells by cell id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.nr_neighbor
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+
+DEFINE{ query_name 'rrcx_pdf_serv_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of serving cells aggregated by gnb id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.serv_nr_cell
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_menbue'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of serving cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+select tb, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.serv_nr_cell
+group by timestamp_ms/$window as tb, gnb_id, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_join'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of serving cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+Select r.tb, r.GNB_ID, m.gTP_TEID, r.cnt,
+	r.rsrp_vbad, r.rsrp_bad, r.rsrp_medium, r.rsrp_good, r.rsrp_vgood
+LEFT_OUTER_JOIN from rrcx_pdf_serv_menbue r, gnb_ueid_teid_map m
+Where r.GNB_ID=m.GNB_ID and r.id_SgNB_UE_X2AP_ID=m.id_SgNB_UE_X2AP_ID and r.tb=m.TB
+;
+
+DEFINE{ query_name 'rrcx_pdf_serv_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of serving cells aggregated by ue (gtp_teid), computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	GNB_ID, gTP_TEID,
+	sum(cnt) as cnt,
+	sum( rsrp_vbad ) as rsrp_vbad,
+	sum( rsrp_bad ) as rsrp_bad,
+	sum( rsrp_medium ) as rsrp_medium,
+	sum( rsrp_good ) as rsrp_good,
+	sum( rsrp_vgood ) as rsrp_vgood
+from rrcx_pdf_serv_join
+group by tb, GNB_ID, gTP_TEID
+;
+
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of neighbor cells aggregated by gNB, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.nr_neighbor
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_menbue'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of neighbor cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+select tb, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,21) ) as rsrp_vbad,
+	sum( GEQ(rsrp,22) & LEQ(rsrp,36) ) as rsrp_bad,
+	sum( GEQ(rsrp,37) & LEQ(rsrp,51) ) as rsrp_medium,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,66) ) as rsrp_good,
+	sum( GEQ(rsrp,67) & LEQ(rsrp,127) ) as rsrp_vgood
+from RRCXFER.nr_neighbor
+group by timestamp_ms/$window as tb, gnb_id, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_join'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of neighbor cells aggregated by menb ueid id, computed from rrc transfer';
+}
+PARAM{ window uint;}
+Select r.tb, r.GNB_ID, m.gTP_TEID, r.cnt,
+	r.rsrp_vbad, r.rsrp_bad, r.rsrp_medium, r.rsrp_good, r.rsrp_vgood
+LEFT_OUTER_JOIN from rrcx_pdf_neighbor_menbue r, gnb_ueid_teid_map m
+Where r.GNB_ID=m.GNB_ID and r.id_SgNB_UE_X2AP_ID=m.id_SgNB_UE_X2AP_ID and r.tb=m.TB
+;
+
+DEFINE{ query_name 'rrcx_pdf_neighbor_gtp_teid'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the  ssb rsrp of neighbor cells aggregated by ue (gtp_teid), computed from rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	GNB_ID, gTP_TEID,
+	sum(cnt) as cnt,
+	sum( rsrp_vbad ) as rsrp_vbad,
+	sum( rsrp_bad ) as rsrp_bad,
+	sum( rsrp_medium ) as rsrp_medium,
+	sum( rsrp_good ) as rsrp_good,
+	sum( rsrp_vgood ) as rsrp_vgood
+from rrcx_pdf_neighbor_join
+group by tb, GNB_ID, gTP_TEID
+
+

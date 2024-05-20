@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------------
+#    Copyright (c) 2018-2019 AT&T Intellectual Property.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+# -------------------------------------------------------------------------------
+
+set -m
+
+FIFO_DIR="/tmp/mcl/fifos"
+
+SIMULATOR_MODE=`python /mc/extract_params.py $XAPP_DESCRIPTOR_PATH simulator_mode`
+
+DEBUG_MODE=`python /mc/extract_params.py $XAPP_DESCRIPTOR_PATH debug_mode`
+
+WINDOW=`python /mc/extract_params.py $XAPP_DESCRIPTOR_PATH measurement_interval`
+
+if [ "$SIMULATOR_MODE" = "true" ]
+then
+	mkdir -p $FIFO_DIR
+	python /mc/data_gen/dc_gen.py &
+	python /mc/data_gen/rrcx_gen.py &
+fi
+
+if [ "$WINDOW" = "" ]
+then
+	WINDOW="10000"
+fi
+
+VES_COLLECTOR=`python /mc/extract_params.py $XAPP_DESCRIPTOR_PATH ves_collector_address`
+
+VES_NAME=`echo $VES_COLLECTOR | awk 'BEGIN{FS=":"} {print $1}'`
+VES_PORT=`echo $VES_COLLECTOR | awk 'BEGIN{FS=":"} {print $2}'`
+VES_IP=`getent ahosts $VES_NAME | awk '{ print $1; exit }'`
+
+./runit
+sleep 1
+
+if [ "$DEBUG_MODE" = "true" ]
+then
+	/mc/gs-lite/bin/gsprintconsole -e `cat gshub.log` default reconfig_all_debug window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole -e `cat gshub.log` default reconfig_success_debug window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole -e `cat gshub.log` default reconfig_reject_debug window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole -e `cat gshub.log` default dc_release_debug window=$WINDOW &
+fi
+
+if [ "$SIMULATOR_MODE" = "true" ]
+then
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_serv_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_serv_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_serv_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_serv_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_connected_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_connection_stats window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_connects_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_disconnects_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_unique_ue_cnt window=$WINDOW &
+else
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default addreq_pdf_nr_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default addreq_pdf_nr_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default addreq_stats_nr_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default addreq_stats_nr_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_neigh_cell_csi window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_neigh_gnb_csi window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_neigh_cell_ssb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_neigh_gnb_ssb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_serv_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_serv_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_neighbor_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_pdf_neighbor_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_neigh_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_neigh_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_serv_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_serv_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_neighbor_cell window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default rrcx_stats_neighbor_gnb window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_connected_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_connection_stats window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_connects_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_disconnects_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mc_unique_ue_cnt window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default addreq_success_stats window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default release_req_success_stats window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default reconfig_status_success_rate window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default reconfig_status_reject_cause window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mod_status_refuse_cause window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default release_cause window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default erab_stats window=$WINDOW &
+	/mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default throughput_ue window=$WINDOW &
+    /mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default throughput_rollup window=$WINDOW &
+    /mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default throughput_gnb window=$WINDOW &
+    /mc/gs-lite/bin/gsprintconsole_ves -C $VES_IP:$VES_PORT -U /vescollector/eventListener/v7 -V 7 `cat gshub.log` default mod_req_failure_distribution window=$WINDOW &
+fi
+
+sleep 1
+bash /mc/gs-lite/bin/start_processing
+fg %1

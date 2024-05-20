@@ -1,0 +1,46 @@
+ -------------------------------------------------------------------------------
+    Copyright (c) 2018-2019 AT&T Intellectual Property.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ -------------------------------------------------------------------------------
+
+Miscellaneous Notes about the repository, organisation etc.
+
+
+Continuous Integration
+
+The CI process is managed via several Jenkins jobs which are triggered
+at various times during the commit, review and merge process. These
+jobs are managed in the gerrit.o-ran-sc.org ci_management repo. Specifically,
+the information in the jjb/ric-app-mc are of interest to this project.
+At a high level, each image that is created from this repo has a "project"
+description in the .yaml file which defines several key items about how
+and when the job(s) are executed.
+
+Currently the CI process is applied to the mc-core and sidecars/listener
+directorys. A docker image is built for each, and is only built when there
+are changes to the respective subdirectory. Images are built using the 
+Dockerfile at the top level of each subdirectory, e.g. mc-core/Dockerfile.
+The image version, or tag, is applied by reading the container-tag.yaml
+file in the same directory as the Dockerfile.  
+
+There is a specific "template" for each project which actually defines
+the Jenkins jobs.  At the moment these are black box things and maintained
+by the CI group. In order to add another "project," (i.e. generate another
+image), a related set of these templates must be created before the .yaml
+file in the CI repo can be modified.  
+
+The basic steps to add a new project:
+  - Create the subdirectory and add a docker and tag file
+  - Contact the CI maintainers to add the templates
+  - Modify the MC .yaml file in the ci-management repo to add the project

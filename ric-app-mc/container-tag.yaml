@@ -1,0 +1,5 @@
+
+# this provides the jenkins environment with a tag to use when 
+# building verification containers.
+---
+tag: 1.0.0

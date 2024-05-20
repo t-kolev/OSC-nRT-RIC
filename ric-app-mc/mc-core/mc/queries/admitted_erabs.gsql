@@ -1,0 +1,87 @@
+
+
+// join interval should be 10 seconds
+// Compromise between ensuring that most add_req_ack-recon_complete pairs
+// are caught while avoiding duplicates due to short sessions
+//	NB: $window should be a multiple of 10.
+DEFINE{query_name 'erab_stats_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+select e.timestamp_ms/10000 as TB10, e.id_SgNB_UE_X2AP_ID, e.e_RAB_ID, e.qCI
+	, e.gnb_id
+INNER_JOIN from SGNB_ADDITION_REQ_ACK.eRABs_acked_for_admit_for_ue e,
+	RECONCOMPLETE.reconfig_success r
+where 
+ r.id_SgNB_UE_X2AP_ID = e.id_SgNB_UE_X2AP_ID
+and r.timestamp_ms/10000 = e.timestamp_ms/10000
+;
+
+
+DEFINE{query_name 'erab_stats';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'number of admitted bearers and the distribution of their qCI';
+}
+PARAM{ window uint; }
+Select (TB*$window)/1000 as TS, gnb_id as GNB_ID,
+	$window/1000.0 as measurementInterval,
+	count(*) as total_erabs,
+	sum( EQ(UINT(qCI),1) ) as qCI_1,
+	sum( EQ(UINT(qCI),2) ) as qCI_2,
+	sum( EQ(UINT(qCI),3) ) as qCI_3,
+	sum( EQ(UINT(qCI),4) ) as qCI_4,
+	sum( EQ(UINT(qCI),5) ) as qCI_5,
+	sum( EQ(UINT(qCI),6) ) as qCI_6,
+	sum( EQ(UINT(qCI),7) ) as qCI_7,
+	sum( EQ(UINT(qCI),8) ) as qCI_8,
+	sum( EQ(UINT(qCI),9) ) as qCI_9,
+	sum( LEQ(UINT(qCI),0)| GEQ(UINT(qCI),10) ) as qCI_other
+from erab_stats_join
+group by (10000*TB10)/$window as TB, gnb_id
+;
+
+--	Create the (gnb_id, [enb_ueid, gnb_ueid]) -> cellid map
+DEFINE{query_name 'gnb_ueid_cellid_map';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Output the last known map from (gnb, gnb_ueid) to (qci, arp)';
+}
+PARAM{ window uint;}
+Select TB, GNB_ID, id_MeNB_UE_X2AP_ID, LAST(id_SgNB_UE_X2AP_ID) as id_SgNB_UE_X2AP_ID,
+	LAST(physCellId) as physCellId
+From SGNB_ADDITION_REQ_ACK.add_req_ack_cellid
+GROUP BY timestamp_ms / $window as TB, id_MeNB_UE_X2AP_ID, gnb_id as GNB_ID
+CLOSING_WHEN ((TB+1)*$window-LAST(timestamp_ms))/1000.0 >= 3600
+;
+
+DEFINE{query_name 'erab_stats_pci_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join erab_stats_join with gnb_ueid_cellid_map to create data stream for erab_stats_cell';
+}
+PARAM{ window uint; }
+select M.TB,  M.GNB_ID, M.physCellId, E.qCI
+INNER_JOIN from erab_stats_join E, gnb_ueid_cellid_map M
+Where E.gnb_id=M.GNB_ID and E.id_SgNB_UE_X2AP_ID=M.id_SgNB_UE_X2AP_ID
+	and (10000*E.TB10)/$window=M.TB
+;
+
+DEFINE{query_name 'erab_stats_pci';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'number of admitted bearers and the distribution of their qCI, by physical cell id';
+}
+PARAM{ window uint; }
+Select (TB*$window)/1000 as TS, GNB_ID, physCellId, 
+	$window/1000.0 as measurementInterval,
+	count(*) as total_erabs,
+	sum( EQ(UINT(qCI),1) ) as qCI_1,
+	sum( EQ(UINT(qCI),2) ) as qCI_2,
+	sum( EQ(UINT(qCI),3) ) as qCI_3,
+	sum( EQ(UINT(qCI),4) ) as qCI_4,
+	sum( EQ(UINT(qCI),5) ) as qCI_5,
+	sum( EQ(UINT(qCI),6) ) as qCI_6,
+	sum( EQ(UINT(qCI),7) ) as qCI_7,
+	sum( EQ(UINT(qCI),8) ) as qCI_8,
+	sum( EQ(UINT(qCI),9) ) as qCI_9,
+	sum( LEQ(UINT(qCI),0)| GEQ(UINT(qCI),10) ) as qCI_other
+from erab_stats_pci_join
+group by (10000*TB)/$window as TB, GNB_ID, physCellId
+

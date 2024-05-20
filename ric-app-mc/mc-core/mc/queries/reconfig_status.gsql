@@ -1,0 +1,452 @@
+DEFINE{query_name 'reconfig_status_start';}
+PARAM{ window uint; }
+select timestamp_ms as timestamp,
+	non_temporal(timestamp_ms) as start_time,
+	0ULL as end_time,
+	id_MeNB_UE_X2AP_ID as eUE_ID,
+	gnb_id,
+	0 as event_type
+from SGNB_ADDITION_REQ.sgnb_addreq_for_ue
+;
+
+DEFINE{query_name 'reconfig_status_success';
+}
+PARAM{ window uint; }
+select timestamp_ms as timestamp,
+	0ULL as start_time,
+	non_temporal(timestamp_ms) as end_time,
+	id_MeNB_UE_X2AP_ID as eUE_ID,
+	gnb_id,
+	1 as event_type
+from RECONCOMPLETE.reconfig_success
+;
+
+DEFINE{query_name 'reconfig_status_events';}
+PARAM{ window uint; }
+merge p1.timestamp : p2.timestamp
+from reconfig_status_start p1, reconfig_status_success p2
+;
+
+
+DEFINE{query_name 'reconfig_status_merge';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+select eUE_ID, gnb_id, TB,
+	max(start_time) as max_start_time,
+	max(end_time) as max_end_time
+from reconfig_status_events
+group by eUE_ID, gnb_id, timestamp / $window as TB
+;
+
+DEFINE{query_name 'reconfig_status_success_rate';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'fraction of DC connect requests which are successful';
+}
+PARAM{ window uint; }
+select gnb_id as GNB_ID,
+	($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	count(*) as total_reconfiguration_requests,
+	sum( GEQ(max_end_time,1) ) as successful_reconfiguration_requests,
+	(1.0*sum( GEQ( max_end_time,1) ))/count(*) as success_rate,
+	1.0 - ( (1.0*sum( GEQ( max_end_time,1) ))/count(*) ) as failure_rate
+from reconfig_status_merge
+group by gnb_id, TB
+;
+
+DEFINE{query_name 'reconfig_status_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Associate gtp_teid using eUE_ID';
+}
+PARAM{ window uint; }
+Select r.eUE_ID, M.gTP_TEID, r.gnb_id, r.TB,
+	r.max_start_time, r.max_end_time
+INNER_JOIN from  reconfig_status_merge r, gnb_ueid_teid_map M
+where r.eUE_ID=M.id_MeNB_UE_X2AP_ID and r.gnb_id=M.GNB_ID and r.TB=M.TB
+;
+
+DEFINE{query_name 'reconfig_status_success_rate_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'fraction of DC connect requests which are successful, on a per-user (gtp_teid) basis.';
+}
+PARAM{ window uint; }
+select gnb_id as GNB_ID, gTP_TEID,
+	($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	count(*) as total_reconfiguration_requests,
+	sum( GEQ(max_end_time,1) ) as successful_reconfiguration_requests,
+	(1.0*sum( GEQ( max_end_time,1) ))/count(*) as success_rate,
+	1.0 - ( (1.0*sum( GEQ( max_end_time,1) ))/count(*) ) as failure_rate
+from reconfig_status_join
+group by gnb_id, gTP_TEID, TB
+;
+
+DEFINE{query_name 'reconfig_status_join_pci';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Associate gtp_teid using eUE_ID';
+}
+PARAM{ window uint; }
+Select r.eUE_ID, M.physCellId, r.gnb_id, r.TB,
+	r.max_start_time, r.max_end_time
+INNER_JOIN from  reconfig_status_merge r, gnb_ueid_cellid_map M
+where r.eUE_ID=M.id_MeNB_UE_X2AP_ID and r.gnb_id=M.GNB_ID and r.TB=M.TB
+;
+
+DEFINE{query_name 'reconfig_status_success_rate_pci';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'fraction of DC connect requests which are successful, on a per-user (gtp_teid) basis.';
+}
+PARAM{ window uint; }
+select gnb_id as GNB_ID, physCellId,
+	($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	count(*) as total_reconfiguration_requests,
+	sum( GEQ(max_end_time,1) ) as successful_reconfiguration_requests,
+	(1.0*sum( GEQ( max_end_time,1) ))/count(*) as success_rate,
+	1.0 - ( (1.0*sum( GEQ( max_end_time,1) ))/count(*) ) as failure_rate
+from reconfig_status_join_pci
+group by gnb_id, TB, physCellId
+;
+
+
+
+// ----------------------------------------------
+//	Merge in reconfig_reject causes and aggregate with this.
+DEFINE{query_name 'reconfig_status_reject_cause';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for DC rejection';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, TB,
+	non_temporal( ($window*(TB+1))/1000 ) as TS, 
+	     $window/1000.0 as measurementInterval,
+	count(*) as total_reconfig_reject,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from ADDREQREJECT.sgnb_add_req_reject
+group by gnb_id, timestamp_ms / $window as TB
+;
+
+DEFINE{query_name 'sgnb_add_req_reject_pci_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join sgnb_add_req_reject with gnb_ueid_cellid_map to create data stream for reconfig_status_reject_cause';
+}
+PARAM{ window uint; }
+select M.TB,  M.GNB_ID, M.physCellId, g.cause_radio_network,
+	g.cause_transport, g.cause_protocol, g.cause_misc
+INNER_JOIN from ADDREQREJECT.sgnb_add_req_reject g, gnb_ueid_cellid_map M
+Where g.gnb_id=M.GNB_ID and g.id_MeNB_UE_X2AP_ID=M.id_MeNB_UE_X2AP_ID
+	and g.timestamp_ms/$window=M.TB
+;
+
+DEFINE{query_name 'reconfig_status_reject_cause_pci';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for DC rejection';
+}
+PARAM{ window uint; }
+Select GNB_ID, TB, 
+	non_temporal( ($window*(TB+1))/1000 ) as TS, physCellId,
+	     $window/1000.0 as measurementInterval,
+	count(*) as total_reconfig_reject,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from sgnb_add_req_reject_pci_join
+group by GNB_ID, TB, physCellId
+;
+
+
+DEFINE{query_name 'reconfig_status_reject_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Associate gtp_teid using eUE_ID';
+}
+PARAM{ window uint; }
+Select r.id_MeNB_UE_X2AP_ID, M.gTP_TEID, r.gnb_id, M.TB,
+	r.cause_radio_network, r.cause_transport,
+	r.cause_protocol, r.cause_misc
+INNER_JOIN from  ADDREQREJECT.sgnb_add_req_reject r, gnb_ueid_teid_map M
+where r.id_MeNB_UE_X2AP_ID=M.id_MeNB_UE_X2AP_ID and r.gnb_id=M.GNB_ID
+	and r.timestamp_ms/$window=M.TB
+;
+
+DEFINE{query_name 'reconfig_status_reject_cause_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for DC rejection on a per-ue (gtp-teid) basis';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, gTP_TEID, TB,
+	non_temporal( ($window*(TB+1))/1000 ) as TS, 
+	     $window/1000.0 as measurementInterval,
+	count(*) as total_reconfig_reject,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from reconfig_status_reject_join
+group by gnb_id, gTP_TEID, TB
+;
+
+DEFINE{query_name 'reconfig_complete_reject_cause';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+Select gnb_id, TB,
+	count(*) as total_reconfig_reject,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from RECONCOMPLETE.reconfig_reject
+group by gnb_id, timestamp_ms / $window as TB
+;
+
+DEFINE{query_name 'reconfig_reject_merge';}
+PARAM{ window uint; }
+merge p1.TB : p2.TB
+from reconfig_status_reject_cause p1, reconfig_complete_reject_cause p2
+;
+
+DEFINE{query_name 'reconfig_reject_cause';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, ($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	sum(total_reconfig_refuse) as total_reconfig_refuse,
+	sum(count_radio_network) as count_radio_network,
+	sum(count_transport) as count_transport,
+	sum(count_protocol) as count_protocol,
+	sum(count_misc) as count_misc
+from reconfig_cause_merge
+group by gnb_id, TB
+;
+
+// ----------------------------------------------
+
+DEFINE{query_name 'mod_status_refuse_cause_base';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification refusal (base)';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, TB, 
+	id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as total_reconfig_refuse,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from SGNBMODREFUSE.sgnb_mod_refuse
+group by gnb_id, timestamp_ms / $window as TB,
+	id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'mod_status_refuse_cause';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification refusal (base)';
+}
+PARAM{ window uint; }
+Select GNB_ID, ($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	sum(total_reconfig_refuse) as total_reconfig_refuse,
+	sum( count_radio_network ) as count_radio_network,
+	sum( count_transport ) as count_transport,
+	sum( count_protocol ) as count_protocol,
+	sum( count_misc ) as count_misc
+from mod_status_refuse_cause_base
+group by GNB_ID, TB
+;
+
+DEFINE{query_name 'mod_status_refuse_cause_pci_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join mod_status_refuse_cause_base with gnb_ueid_cellid_map to create data stream for mod_status_refuse_cause_pci';
+}
+PARAM{ window uint; }
+select M.TB,  M.GNB_ID, M.physCellId,
+	g.total_reconfig_refuse, g.count_radio_network,
+	g.count_transport, g.count_protocol, g.count_misc
+INNER_JOIN from mod_status_refuse_cause_base g, gnb_ueid_cellid_map M
+Where g.GNB_ID=M.GNB_ID and g.id_MeNB_UE_X2AP_ID=M.id_MeNB_UE_X2AP_ID
+	and g.TB=M.TB
+;
+
+DEFINE{query_name 'mod_status_refuse_cause_pci';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification refusal (base)';
+}
+PARAM{ window uint; }
+Select GNB_ID, ($window*(TB+1))/1000 as TS, physCellId,
+	     $window/1000.0 as measurementInterval,
+	sum(total_reconfig_refuse) as total_reconfig_refuse,
+	sum( count_radio_network ) as count_radio_network,
+	sum( count_transport ) as count_transport,
+	sum( count_protocol ) as count_protocol,
+	sum( count_misc ) as count_misc
+from mod_status_refuse_cause_pci_join
+group by GNB_ID, TB, physCellId
+;
+
+DEFINE{query_name 'mod_req_reject_cause_base';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification request reject (base)';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, TB, 
+	id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID,
+	count(*) as total_reconfig_refuse,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from SGNBMODREQREJECT.sgnb_mod_req_reject
+group by gnb_id, timestamp_ms / $window as TB,
+	id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'mod_status_refuse_cause_base_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification refusal (base), labeled with gtp_teid';
+}
+PARAM{ window uint; }
+Select b.GNB_ID, b.TB, 
+	m.gTP_TEID,
+	b.total_reconfig_refuse,
+	b.count_radio_network,
+	b.count_transport,
+	b.count_protocol,
+	b.count_misc
+LEFT_OUTER_JOIN from mod_status_refuse_cause_base b,
+	gnb_ueid_teid_map m
+where b.TB=m.TB and b.GNB_ID=m.GNB_ID and  
+	b.id_MeNB_UE_X2AP_ID=m.id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'mod_req_reject_cause_base_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification request reject (base), labeled with gtp_teid';
+}
+PARAM{ window uint; }
+Select b.GNB_ID, b.TB, 
+	m.gTP_TEID,
+	b.total_reconfig_refuse,
+	b.count_radio_network,
+	b.count_transport,
+	b.count_protocol,
+	b.count_misc
+LEFT_OUTER_JOIN from mod_req_reject_cause_base b,
+	gnb_ueid_teid_map m
+where b.TB=m.TB and b.GNB_ID=m.GNB_ID and  
+	b.id_MeNB_UE_X2AP_ID=m.id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'mod_failure_cause_merge';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification request reject (base), labeled with gtp_teid';
+}
+PARAM{ window uint; }
+merge p1.TB : p2.TB
+from mod_req_reject_cause_base_gtp_teid p1, mod_status_refuse_cause_base_gtp_teid p2
+;
+
+DEFINE{query_name 'mod_failure_cause_gtp_teid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of causes for a sgnb modification failure, by UE (gtp_teid)';
+}
+PARAM{ window uint; }
+Select GNB_ID, gTP_TEID, ($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	sum(total_reconfig_refuse) as total_reconfig_refuse,
+	sum( count_radio_network ) as count_radio_network,
+	sum( count_transport ) as count_transport,
+	sum( count_protocol ) as count_protocol,
+	sum( count_misc ) as count_misc
+from mod_failure_cause_merge
+group by GNB_ID, gTP_TEID, TB
+;
+
+
+// ----------------------------------------------
+
+DEFINE{query_name 'release_rqd_cause_base';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+Select gnb_id, TB, id_MeNB_UE_X2AP_ID,
+	count(*) as total_reconfig_refuse,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from SGNBRELEASERQD.SgNB_release_rqd
+group by gnb_id, timestamp_ms / $window as TB, id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'release_request_cause_base';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+Select gnb_id, TB, id_MeNB_UE_X2AP_ID,
+	count(*) as total_reconfig_refuse,
+	sum( GEQ(cause_radio_network,0) ) as count_radio_network,
+	sum( GEQ(cause_transport,0) ) as count_transport,
+	sum( GEQ(cause_protocol,0) ) as count_protocol,
+	sum( GEQ(cause_misc,0) ) as count_misc
+from RELREQ.release_req
+group by gnb_id, timestamp_ms / $window as TB, id_MeNB_UE_X2AP_ID
+;
+
+DEFINE{query_name 'reconfig_cause_merge';}
+PARAM{ window uint; }
+merge p1.TB : p2.TB
+from release_rqd_cause_base p1, release_request_cause_base p2
+;
+
+DEFINE{query_name 'release_cause';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the causes of a DC release';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, ($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	sum(total_reconfig_refuse) as total_reconfig_refuse,
+	sum(count_radio_network) as count_radio_network,
+	sum(count_transport) as count_transport,
+	sum(count_protocol) as count_protocol,
+	sum(count_misc) as count_misc
+from reconfig_cause_merge
+group by gnb_id, TB
+;
+
+DEFINE{query_name 'release_cause_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the causes of a DC release';
+}
+PARAM{ window uint; }
+Select r.gnb_id, r.TB, m.gTP_TEID, 
+	r.total_reconfig_refuse, r.count_radio_network, 
+	r.count_transport, r.count_protocol, r.count_misc
+LEFT_OUTER_JOIN from reconfig_cause_merge r, gnb_ueid_teid_map m
+Where r.gnb_id=m.GNB_ID and r.id_MeNB_UE_X2AP_ID=m.id_MeNB_UE_X2AP_ID 
+	and r.TB=m.TB
+;
+
+DEFINE{query_name 'release_cause_gtp_ueid';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'distribution of the causes of a DC release by UE (gtp_teid)';
+}
+PARAM{ window uint; }
+Select gnb_id as GNB_ID, gTP_TEID, ($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+	sum(total_reconfig_refuse) as total_reconfig_refuse,
+	sum(count_radio_network) as count_radio_network,
+	sum(count_transport) as count_transport,
+	sum(count_protocol) as count_protocol,
+	sum(count_misc) as count_misc
+from release_cause_join
+group by gnb_id, TB, gTP_TEID
+
+
+

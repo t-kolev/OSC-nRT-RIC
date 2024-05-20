@@ -1,0 +1,39 @@
+DEFINE{ query_name 'addreq_pdf_nr_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'histogram of neighboring cell RSRP, aggregated by gnb_id / cell id';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from SGNB_ADDITION_REQ.sgnb_addreq_for_ue_mn_neigh_ssb
+group by timestamp_ms/$window as tb, physCellId, gnb_id as GNB_ID
+;
+
+DEFINE{ query_name 'addreq_pdf_nr_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'histogram of neighboring cell RSRP, aggregated by GNB, as computed from addition request events.';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	for now divide into 5 bins.
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	sum( GEQ(rsrp, 0) & LEQ(rsrp,37) ) as rsrp_vbad,
+	sum( GEQ(rsrp,38) & LEQ(rsrp,52) ) as rsrp_bad,
+	sum( GEQ(rsrp,52) & LEQ(rsrp,67) ) as rsrp_medium,
+	sum( GEQ(rsrp,68) & LEQ(rsrp,82) ) as rsrp_good,
+	sum( GEQ(rsrp,83) & LEQ(rsrp,127) ) as rsrp_vgood
+from SGNB_ADDITION_REQ.sgnb_addreq_for_ue_mn_neigh_ssb
+group by timestamp_ms/$window as tb, gnb_id
+

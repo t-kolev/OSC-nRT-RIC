@@ -1,0 +1,203 @@
+DEFINE{ query_name 'rrcx_stats_serv_beam_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on ssb RSRP on the beams of serving cells, aggregated by gbn_id / cell ID, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.serv_cell_beam_ssb
+where  rsrp<128
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_stats_serv_beam_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on ssb RSRP on the beams of serving cells, aggregated by gbn_id / cell ID, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.serv_cell_beam_ssb
+where  rsrp<128
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+
+DEFINE{ query_name 'rrcx_stats_neighbor_beam_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on ssb RSRP on the beams of neighboring cells, aggregated by gbn_id / cell ID, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.neighbor_beam_ssb
+where  rsrp<128
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_stats_neighbor_beam_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on ssb RSRP on the beams of nrighboring cells, aggregated by gNB, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.neighbor_beam_ssb
+where  rsrp<128
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+
+DEFINE{ query_name 'rrcx_stats_serv_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the ssb rsrp of the serving cell, aggregated by gnb_id / cell id, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0) )  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.serv_nr_cell
+where rsrp<128
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_stats_neighbor_cell'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the ssb rsrp of the neighbor cells, aggregated by gnb_id / cell id, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	physCellId as CELL_ID, gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.nr_neighbor
+where  rsrp<128
+group by timestamp_ms/$window as tb, physCellId, gnb_id
+;
+
+
+DEFINE{ query_name 'rrcx_stats_serv_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the ssb srp of the serving cell, aggregated by gNB, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.serv_nr_cell
+where  rsrp<128
+group by timestamp_ms/$window as tb, gnb_id
+;
+
+DEFINE{ query_name 'rrcx_stats_neighbor_gnb'; 
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the ssb rsrp of the neighbor cells, aggregated by gNB, computed using rrc transfer';
+}
+PARAM{ window uint;}
+//	rsrp, rsrq, sinr ranges are 0 .. 127
+//	to convert rsrp to dbm, subtract 157
+
+select ($window*(tb+1))/1000 as TS, $window/1000.0 as measurementInterval,
+	gnb_id as GNB_ID,
+	count(*) as cnt,
+	INT(min(rsrp))-INT(157) as min_rsrp,
+	INT(quantile_of(rsrp, .05)) - INT(157) as pctl_05_rsrp,
+	INT(median_of(rsrp)) - INT(157) as median_rsrp,
+	INT(quantile_of(rsrp, .95)) - INT(157) as pctl_95_rsrp,
+	sqrt(
+		sum( (rsrp-157.0)*(rsrp-157.0))  -
+		sum( rsrp-157.0 )*sum( rsrp-157.0 )/count(*)
+	) / count(*) as stddev_rsrp,
+	INT(max(rsrp))-INT(157) as max_rsrp
+from RRCXFER.nr_neighbor
+//where schemaId = 4 and rsrp<128
+where  rsrp<128
+group by timestamp_ms/$window as tb, gnb_id
+

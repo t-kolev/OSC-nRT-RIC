@@ -1,0 +1,41 @@
+
+Test things for listener. These are broken out to prevent sonar from
+analysing them as they force things like passing nil pointers which sonar
+finds distasteful and complains (incorrectly) about.
+
+The run_unit_test script will drive the vetting and coverage tests on all
+of the library modules in ../src. Coverage files are moved to the parent
+directory where the jjb jobs expect to find them.
+
+The run_app_test script drives the listener application and tools, as well
+as the test sender, to generate coverage.  There is little vetting done
+here; any problems should be discovered by the verify scripts in ../src
+at the time the code is pushed. This is simply a coverage test for sonar.
+
+
+Verification
+The unit and app test scripts pretty much verify sucessful runs. If it is
+necessary to see things like whether or not the "failure" of a pipe
+reader affects the listener (blocks it), then running the app test with
+-v and looking at the listener output will help.  Lines like the following
+give clues about this:
+
+1616516620 [STAT] (mcl) mtype=0 total writes=1 total drops=0; during last 1s writes=0 drops=0
+1616516620 [STAT] (mcl) mtype=1 total writes=88 total drops=0; during last 1s writes=24 drops=0
+1616516620 [STAT] (mcl) mtype=2 total writes=88 total drops=0; during last 1s writes=24 drops=0
+1616516620 [STAT] (mcl) mtype=3 total writes=88 total drops=0; during last 1s writes=24 drops=0
+1616516620 [STAT] (mcl) mtype=4 total writes=88 total drops=0; during last 1s writes=24 drops=0
+1616516620 [STAT] (mcl) mtype=5 total writes=88 total drops=0; during last 1s writes=24 drops=0
+1616516620 [STAT] (mcl) mtype=6 total writes=10 total drops=78; during last 1s writes=0 drops=25
+1616516620 [STAT] (mcl) mtype=7 total writes=0 total drops=88; during last 1s writes=0 drops=25
+1616516620 [STAT] (mcl) mtype=8 total writes=0 total drops=88; during last 1s writes=0 drops=25
+
+The sender sends message types 0-8 inclusive, but there are only 7 listeners
+started (0-6) so we should never see successful wirte counts for types 7 and 8.
+Further, pipe reader for mt 6 stops early, and so we should see some drops after
+it has stopped; It stops after 10 successful reads, so the number of writes
+should be 10 or 11 depending on timing of the processes. There shouldn't be
+any drops on the other FIFOs.
+
+It is difficult, if not impossible, to test the logic that detects an
+interrupted write on the pipe to ensure that all data is written.

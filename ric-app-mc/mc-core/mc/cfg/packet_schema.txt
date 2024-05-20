@@ -1,0 +1,1001 @@
+
+PROTOCOL base{
+        uint systemTime get_system_time (low_cardinality,required,increasing, snap_len 0);
+        uint schemaId get_schemaId (low_cardinality,required, snap_len 0);
+}
+
+// indicates release of dual connectivity for the UE
+// Defined in context_release.json on ue_context_release.proto
+// schemaId = 201, interface CONRELEASE
+PROTOCOL dc_release (base, schema_id 201){
+// timestamp in milliseconds
+	ullong timestamp_ms get_dc_release__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_dc_release__gnb_id (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_Old_eNB_UE_X2AP_ID_Extension get_dc_release__id_Old_eNB_UE_X2AP_ID_Extension (required);
+// future UE_ID assigned by eNB for the UE over the X2. is mandatory  default=0
+	llong id_New_eNB_UE_X2AP_ID get_dc_release__id_New_eNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2.  Match against reconfig_success.id_SgNB_UE_X2AP_ID.  is optional  default=0
+	uint id_SgNB_UE_X2AP_ID get_dc_release__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_New_eNB_UE_X2AP_ID_Extension get_dc_release__id_New_eNB_UE_X2AP_ID_Extension (required);
+// deprecated UE_ID assigned by eNB for the UE over the X2.  Match against reconfig_success.id_MeNB_UE_X2AP_ID. is mandatory  default=0
+	llong id_Old_eNB_UE_X2AP_ID get_dc_release__id_Old_eNB_UE_X2AP_ID (required);
+}
+
+// transfer per UE and bearer between given time intervals
+// Defined in rat_data_usage.json on secondary_rat_data_usage_report.proto
+// schemaId = 1501, interface RATDATAUSAGE
+PROTOCOL rat_data_usage (base, schema_id 1501){
+// timestamp in milliseconds
+	ullong timestamp_ms get_rat_data_usage__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_rat_data_usage__gnb_id (required);
+// UE_ID assigned by eNB for the UE over the X2.  Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_rat_data_usage__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. Is mandatory
+	llong id_SgNB_UE_X2AP_ID get_rat_data_usage__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_rat_data_usage__id_MeNB_UE_X2AP_ID_Extension (required);
+// Bearer ID
+	llong e_RAB_ID get_rat_data_usage__e_RAB_ID (required);
+//  
+	llong secondaryRATType get_rat_data_usage__secondaryRATType (required);
+	llong startTimeStamp get_rat_data_usage__startTimeStamp (required);
+	llong endTimeStamp get_rat_data_usage__endTimeStamp (required);
+	llong usageCountDL get_rat_data_usage__usageCountDL (required);
+}
+
+// indicates successful configuration of Dual Connectivity
+// Defined in recon_complete.json on sgnb_reconfiguration_complete.proto
+// schemaId = 103, interface RECONCOMPLETE
+PROTOCOL reconfig_all (base, schema_id 103){
+// timestamp in milliseconds
+	ullong timestamp_ms get_reconfig_all__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_reconfig_all__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_reconfig_all__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional  default=0
+	llong id_SgNB_UE_X2AP_ID get_reconfig_all__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_reconfig_all__id_MeNB_UE_X2AP_ID_Extension (required);
+}
+
+// indicates unsuccessful configuration of Dual Connectivity`
+// Defined in recon_complete.json on sgnb_reconfiguration_complete.proto
+// schemaId = 101, interface RECONCOMPLETE
+PROTOCOL reconfig_success (base, schema_id 101){
+// timestamp in milliseconds
+	ullong timestamp_ms get_reconfig_success__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_reconfig_success__gnb_id (required);
+// UE_ID assigned by eNB for the UE over the X2.  Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_reconfig_success__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. Is optional  default=0
+	llong id_SgNB_UE_X2AP_ID get_reconfig_success__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_reconfig_success__id_MeNB_UE_X2AP_ID_Extension (required);
+}
+
+// indicates unsuccessful configuration of Dual Connectivity`
+// Defined in recon_complete.json on sgnb_reconfiguration_complete.proto
+// schemaId = 102, interface RECONCOMPLETE
+PROTOCOL reconfig_reject (base, schema_id 102){
+// timestamp in milliseconds
+	ullong timestamp_ms get_reconfig_reject__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_reconfig_reject__gnb_id (required);
+// UE_ID assigned by eNB for the UE over the X2.  Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_reconfig_reject__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. Is optional  default=0
+	llong id_SgNB_UE_X2AP_ID get_reconfig_reject__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_reconfig_reject__id_MeNB_UE_X2AP_ID_Extension (required);
+//   default=-1
+	llong cause_radio_network get_reconfig_reject__cause_radio_network (required);
+//   default=-1
+	llong cause_transport get_reconfig_reject__cause_transport (required);
+//   default=-1
+	llong cause_protocol get_reconfig_reject__cause_protocol (required);
+//   default=-1
+	llong cause_misc get_reconfig_reject__cause_misc (required);
+}
+
+// Confirmation of release of SgNB and SCG resources by the MeNB, list the eRABs if any (default is ALL in which case no eRABs are listed).
+// Defined in release_confirm.json on sgnb_release_confirm.proto
+// schemaId = 1101, interface RELCONF
+PROTOCOL sgnb_release_confirm_from_menb_erabs (base, schema_id 1101){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_release_confirm_from_menb_erabs__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_release_confirm_from_menb_erabs__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_sgnb_release_confirm_from_menb_erabs__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory  default=0
+	llong id_SgNB_UE_X2AP_ID get_sgnb_release_confirm_from_menb_erabs__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_release_confirm_from_menb_erabs__id_MeNB_UE_X2AP_ID_Extension (required);
+// indicates whether NR lower layers (nr-rlc, nr-MAC, and mmwave-Phy) are being used to transport the traffic.  default=-1
+	llong sCGresources get_sgnb_release_confirm_from_menb_erabs__sCGresources (required);
+// bearer eRAB id.  default=0
+	llong e_RAB_ID get_sgnb_release_confirm_from_menb_erabs__e_RAB_ID (required);
+// Indicates whether NR pdcp is available at the SgNB for the PDUs pertaining to the bearer.  default=-1
+	llong pDCPatSgNB get_sgnb_release_confirm_from_menb_erabs__pDCPatSgNB (required);
+// indicates whether LTE lower layers (rlc, MAC, and Phy) are being used to transport the traffic.  default=-1
+	llong mCGresources get_sgnb_release_confirm_from_menb_erabs__mCGresources (required);
+// Tunnel is a virtual connection over the physical X2 connection meant to handle a bearer-specific GTP (GPRS Tunneling Protocol) traffic flow in terms of PDCP PDUs.  This virtual connection has an ID given by this field.
+	string gTP_TEID get_sgnb_release_confirm_from_menb_erabs__gTP_TEID (required);
+// logical IP address for this virtual connection over X2, likely an ipv6 in binary.
+	string transportLayerAddress get_sgnb_release_confirm_from_menb_erabs__transportLayerAddress (required);
+}
+
+// Confirmation of release of SgNB and SCG resources by the MeNB.
+// Defined in release_confirm.json on sgnb_release_confirm.proto
+// schemaId = 1102, interface RELCONF
+PROTOCOL sgnb_release_confirm_from_menb (base, schema_id 1102){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_release_confirm_from_menb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_release_confirm_from_menb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_sgnb_release_confirm_from_menb__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory  default=0
+	llong id_SgNB_UE_X2AP_ID get_sgnb_release_confirm_from_menb__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_release_confirm_from_menb__id_MeNB_UE_X2AP_ID_Extension (required);
+}
+
+// initiated by the MeNB to request SgNB to release its SCG resources for the UE
+// Defined in release_req.json on sgnb_release_request.proto
+// schemaId = 801, interface RELREQ
+PROTOCOL release_req (base, schema_id 801){
+// timestamp in milliseconds
+	ullong timestamp_ms get_release_req__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_release_req__gnb_id (required);
+//   default=-1
+	llong cause_protocol get_release_req__cause_protocol (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_release_req__id_MeNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_transport get_release_req__cause_transport (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_release_req__id_MeNB_UE_X2AP_ID_Extension (required);
+//   default=-1
+	llong cause_radio_network get_release_req__cause_radio_network (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional  default=0
+	uint id_SgNB_UE_X2AP_ID get_release_req__id_SgNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_misc get_release_req__cause_misc (required);
+}
+
+// response by the SgNB back to the MeNB acknowledging release of SCG resources for the UE.
+// Defined in release_req_ack.json on sgnb_release_request_acknowledge.proto
+// schemaId = 901, interface RELREQACK
+PROTOCOL release_req_ack (base, schema_id 901){
+// timestamp in milliseconds
+	ullong timestamp_ms get_release_req_ack__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_release_req_ack__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory  default=0
+	llong id_MeNB_UE_X2AP_ID get_release_req_ack__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory  default=0
+	llong id_SgNB_UE_X2AP_ID get_release_req_ack__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_release_req_ack__id_MeNB_UE_X2AP_ID_Extension (required);
+}
+
+// Initiated by the SgNB indicating to MeNB that SCG resources need to be released for the given underlying cause.
+// Defined in release_rqd.json on sgnb_release_required.proto
+// schemaId = 1001, interface SGNBRELEASERQD
+PROTOCOL SgNB_release_rqd (base, schema_id 1001){
+// timestamp in milliseconds
+	ullong timestamp_ms get_SgNB_release_rqd__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_SgNB_release_rqd__gnb_id (required);
+//   default=-1
+	llong cause_protocol get_SgNB_release_rqd__cause_protocol (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_SgNB_release_rqd__id_MeNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_transport get_SgNB_release_rqd__cause_transport (required);
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID0 get_SgNB_release_rqd__e_RAB_ID0;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID1 get_SgNB_release_rqd__e_RAB_ID1;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID2 get_SgNB_release_rqd__e_RAB_ID2;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID3 get_SgNB_release_rqd__e_RAB_ID3;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID4 get_SgNB_release_rqd__e_RAB_ID4;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID5 get_SgNB_release_rqd__e_RAB_ID5;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID6 get_SgNB_release_rqd__e_RAB_ID6;
+// max is 8, for piz trial 4.  Optional.  If not present, release ALL bearers.
+	llong e_RAB_ID7 get_SgNB_release_rqd__e_RAB_ID7;
+//   default=-1
+	llong cause_radio_network get_SgNB_release_rqd__cause_radio_network (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_SgNB_release_rqd__id_SgNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_misc get_SgNB_release_rqd__cause_misc (required);
+}
+
+// Cell-wide CSI-RS measurement tuple and SSB measurement (on serving cells)
+// Defined in rrc_metrics.json on rrctransfer.proto
+// schemaId = 1, interface RRCXFER
+PROTOCOL serv_nr_cell (base, schema_id 1){
+// timestamp in milliseconds
+	ullong timestamp_ms get_serv_nr_cell__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_serv_nr_cell__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_serv_nr_cell__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional
+	llong id_SgNB_UE_X2AP_ID get_serv_nr_cell__id_SgNB_UE_X2AP_ID (required);
+// priority of the serving cell, 0 is the primary
+	llong servCellID get_serv_nr_cell__servCellID (required);
+// CELL_ID
+	uint physCellId get_serv_nr_cell__physCellId;
+	uint rsrq get_serv_nr_cell__rsrq;
+	uint rsrp get_serv_nr_cell__rsrp;
+	uint sinr get_serv_nr_cell__sinr;
+}
+
+// Cell-wide  SSB measurement (from neighbor cells)
+// Defined in rrc_metrics.json on rrctransfer.proto
+// schemaId = 4, interface RRCXFER
+PROTOCOL nr_neighbor (base, schema_id 4){
+// timestamp in milliseconds
+	ullong timestamp_ms get_nr_neighbor__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_nr_neighbor__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_nr_neighbor__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional
+	llong id_SgNB_UE_X2AP_ID get_nr_neighbor__id_SgNB_UE_X2AP_ID (required);
+// CELL_ID
+	uint physCellId get_nr_neighbor__physCellId;
+	uint rsrq get_nr_neighbor__rsrq;
+	uint rsrp get_nr_neighbor__rsrp;
+	uint sinr get_nr_neighbor__sinr;
+}
+
+// Cell-wide beam-specific CSI-RS measurements (on serving cells) 
+// Defined in rrc_metrics.json on rrctransfer.proto
+// schemaId = 2, interface RRCXFER
+PROTOCOL serv_cell_beam_csi (base, schema_id 2){
+// timestamp in milliseconds
+	ullong timestamp_ms get_serv_cell_beam_csi__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_serv_cell_beam_csi__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_serv_cell_beam_csi__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional
+	llong id_SgNB_UE_X2AP_ID get_serv_cell_beam_csi__id_SgNB_UE_X2AP_ID (required);
+// priority of the serving cell, 0 is the primary
+	llong servCellID get_serv_cell_beam_csi__servCellID (required);
+// CELL_ID
+	uint physCellId get_serv_cell_beam_csi__physCellId;
+// beam id for CSI Reference Signal measurement results
+	llong csi_rs_index get_serv_cell_beam_csi__csi_rs_index (required);
+	uint rsrq get_serv_cell_beam_csi__rsrq;
+	uint rsrp get_serv_cell_beam_csi__rsrp;
+	uint sinr get_serv_cell_beam_csi__sinr;
+}
+
+// Cell-wide beam-specific CSI-RS measurements (from neighbor cells) 
+// Defined in rrc_metrics.json on rrctransfer.proto
+// schemaId = 5, interface RRCXFER
+PROTOCOL neighbor_beam_csi (base, schema_id 5){
+// timestamp in milliseconds
+	ullong timestamp_ms get_neighbor_beam_csi__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_neighbor_beam_csi__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_neighbor_beam_csi__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional
+	llong id_SgNB_UE_X2AP_ID get_neighbor_beam_csi__id_SgNB_UE_X2AP_ID (required);
+// CELL_ID
+	uint physCellId get_neighbor_beam_csi__physCellId;
+// beam id for CSI Reference Signal measurement results
+	llong csi_rs_index get_neighbor_beam_csi__csi_rs_index (required);
+	uint rsrq get_neighbor_beam_csi__rsrq;
+	uint rsrp get_neighbor_beam_csi__rsrp;
+	uint sinr get_neighbor_beam_csi__sinr;
+}
+
+// Cell-wide beam-specific LIST of SS/PBCH reference signal measurement (on serving cells)
+// Defined in rrc_metrics.json on rrctransfer.proto
+// schemaId = 3, interface RRCXFER
+PROTOCOL serv_cell_beam_ssb (base, schema_id 3){
+// timestamp in milliseconds
+	ullong timestamp_ms get_serv_cell_beam_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_serv_cell_beam_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_serv_cell_beam_ssb__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional
+	llong id_SgNB_UE_X2AP_ID get_serv_cell_beam_ssb__id_SgNB_UE_X2AP_ID (required);
+// priority of the serving cell, 0 is the primary
+	llong servCellID get_serv_cell_beam_ssb__servCellID (required);
+// CELL_ID
+	uint physCellId get_serv_cell_beam_ssb__physCellId;
+// beam id for broadcast reference signals
+	llong ssb_Index get_serv_cell_beam_ssb__ssb_Index (required);
+	uint rsrq get_serv_cell_beam_ssb__rsrq;
+	uint rsrp get_serv_cell_beam_ssb__rsrp;
+	uint sinr get_serv_cell_beam_ssb__sinr;
+}
+
+// Cell-wide beam-specific LIST of SS/PBCH reference signal measurement (from neighbor cell)
+// Defined in rrc_metrics.json on rrctransfer.proto
+// schemaId = 6, interface RRCXFER
+PROTOCOL neighbor_beam_ssb (base, schema_id 6){
+// timestamp in milliseconds
+	ullong timestamp_ms get_neighbor_beam_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_neighbor_beam_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_neighbor_beam_ssb__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is optional
+	llong id_SgNB_UE_X2AP_ID get_neighbor_beam_ssb__id_SgNB_UE_X2AP_ID (required);
+// CELL_ID
+	uint physCellId get_neighbor_beam_ssb__physCellId;
+// beam id for broadcast reference signals
+	llong ssb_Index get_neighbor_beam_ssb__ssb_Index (required);
+	uint rsrq get_neighbor_beam_ssb__rsrq;
+	uint rsrp get_neighbor_beam_ssb__rsrp;
+	uint sinr get_neighbor_beam_ssb__sinr;
+}
+
+// Rejection by the gNMB of an incoming request from the MeNB to the gNB for getting added as a secondary node.
+// Defined in sgnb_add_req_reject.json on sgnb_addition_request_reject.proto
+// schemaId = 701, interface ADDREQREJECT
+PROTOCOL sgnb_add_req_reject (base, schema_id 701){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_add_req_reject__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_add_req_reject__gnb_id (required);
+// UE_ID assigned by eNB for the UE over the X2.  Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_add_req_reject__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. Is optional
+	uint id_SgNB_UE_X2AP_ID get_sgnb_add_req_reject__id_SgNB_UE_X2AP_ID;
+//   default=-1
+	llong cause_radio_network get_sgnb_add_req_reject__cause_radio_network (required);
+//   default=-1
+	llong cause_transport get_sgnb_add_req_reject__cause_transport (required);
+//   default=-1
+	llong cause_protocol get_sgnb_add_req_reject__cause_protocol (required);
+//   default=-1
+	llong cause_misc get_sgnb_add_req_reject__cause_misc (required);
+}
+
+// Indicates positive response for adding secondary node to the UE.  This record has indicated bearers not admitted by the secondary node.
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 501, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL eRABs_notadmitted_for_ue (base, schema_id 501){
+// timestamp in milliseconds
+	ullong timestamp_ms get_eRABs_notadmitted_for_ue__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_eRABs_notadmitted_for_ue__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_eRABs_notadmitted_for_ue__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_eRABs_notadmitted_for_ue__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_eRABs_notadmitted_for_ue__id_MeNB_UE_X2AP_ID_Extension (required);
+// bearer id
+	llong e_RAB_ID get_eRABs_notadmitted_for_ue__e_RAB_ID (required);
+//   default=-1
+	llong cause_transport get_eRABs_notadmitted_for_ue__cause_transport (required);
+//   default=-1
+	llong cause_protocol get_eRABs_notadmitted_for_ue__cause_protocol (required);
+//   default=-1
+	llong cause_misc get_eRABs_notadmitted_for_ue__cause_misc (required);
+//   default=-1
+	llong cause_radio_network get_eRABs_notadmitted_for_ue__cause_radio_network (required);
+}
+
+// Associates a Physical Cell ID (PCI) with a enb-ueid / gnb-ueid
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 10000, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL add_req_ack_cellid (base, schema_id 10000){
+// timestamp in milliseconds
+	ullong timestamp_ms get_add_req_ack_cellid__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_add_req_ack_cellid__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_add_req_ack_cellid__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_add_req_ack_cellid__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_add_req_ack_cellid__id_MeNB_UE_X2AP_ID_Extension (required);
+// Physical Cell ID (PCI) of the serving cell
+	uint physCellId get_add_req_ack_cellid__physCellId;
+}
+
+// Indicates positive response for adding secondary node to the UE.  This record indicates eRABs acknowledged for admission for the UE. 
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 502, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL eRABs_acked_for_admit_for_ue (base, schema_id 502){
+// timestamp in milliseconds
+	ullong timestamp_ms get_eRABs_acked_for_admit_for_ue__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_eRABs_acked_for_admit_for_ue__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_eRABs_acked_for_admit_for_ue__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_eRABs_acked_for_admit_for_ue__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_eRABs_acked_for_admit_for_ue__id_MeNB_UE_X2AP_ID_Extension (required);
+//   default=0
+	llong ARP get_eRABs_acked_for_admit_for_ue__ARP (required);
+	string gTP_TEID_dl get_eRABs_acked_for_admit_for_ue__gTP_TEID_dl;
+	llong mCGresources get_eRABs_acked_for_admit_for_ue__mCGresources;
+// likely a binary ipv6 address
+	string transportLayerAddress_dl get_eRABs_acked_for_admit_for_ue__transportLayerAddress_dl;
+	llong pDCPatSgNB get_eRABs_acked_for_admit_for_ue__pDCPatSgNB;
+	llong sCGresources get_eRABs_acked_for_admit_for_ue__sCGresources;
+// bearer id
+	llong e_RAB_ID get_eRABs_acked_for_admit_for_ue__e_RAB_ID (required);
+//   default=0
+	llong qCI get_eRABs_acked_for_admit_for_ue__qCI (required);
+}
+
+// Extracts the frequencies of the NR cells serving the eRAB.
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 503, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL SgNB_ack_for_ue_NRfreqs (base, schema_id 503){
+// timestamp in milliseconds
+	ullong timestamp_ms get_SgNB_ack_for_ue_NRfreqs__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_SgNB_ack_for_ue_NRfreqs__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_SgNB_ack_for_ue_NRfreqs__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_SgNB_ack_for_ue_NRfreqs__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_SgNB_ack_for_ue_NRfreqs__id_MeNB_UE_X2AP_ID_Extension (required);
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN0 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN0;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN1 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN1;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN2 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN2;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN3 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN3;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN4 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN4;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN5 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN5;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN6 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN6;
+// max is 8, 4 for PIZ trial
+	uint measuredFrequenciesSN7 get_SgNB_ack_for_ue_NRfreqs__measuredFrequenciesSN7;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs0 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs0;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs1 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs1;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs2 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs2;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs3 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs3;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs4 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs4;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs5 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs5;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs6 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs6;
+// max is 8, for piz trial 4
+	llong candidate_serving_cell_freqs7 get_SgNB_ack_for_ue_NRfreqs__candidate_serving_cell_freqs7;
+}
+
+// list of eRABs with sgNB radio bearer config info for addition or modification.
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 504, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL SgNB_ack_for_add_mod_for_ue (base, schema_id 504){
+// timestamp in milliseconds
+	ullong timestamp_ms get_SgNB_ack_for_add_mod_for_ue__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_SgNB_ack_for_add_mod_for_ue__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_SgNB_ack_for_add_mod_for_ue__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_SgNB_ack_for_add_mod_for_ue__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_SgNB_ack_for_add_mod_for_ue__id_MeNB_UE_X2AP_ID_Extension (required);
+	llong toRelease0 get_SgNB_ack_for_add_mod_for_ue__toRelease0;
+	llong toRelease1 get_SgNB_ack_for_add_mod_for_ue__toRelease1;
+	llong toRelease2 get_SgNB_ack_for_add_mod_for_ue__toRelease2;
+	llong toRelease3 get_SgNB_ack_for_add_mod_for_ue__toRelease3;
+// to come
+	bool recoverPDCP get_SgNB_ack_for_add_mod_for_ue__recoverPDCP;
+// to come
+	bool reestablishPDCP get_SgNB_ack_for_add_mod_for_ue__reestablishPDCP;
+// RAN drb identity of the eRAB. For split drb this value is the same for both meNB and sgNB.
+	llong drb_Identity get_SgNB_ack_for_add_mod_for_ue__drb_Identity (required);
+// RAN - core end to end bearer identity agnostic of underlying en-dc.
+	llong eps_BearerIdentity get_SgNB_ack_for_add_mod_for_ue__eps_BearerIdentity (required);
+}
+
+// signaling measurements of the user while serving the eRABs
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 505, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL SgNB_ack_for_ue_measurements (base, schema_id 505){
+// timestamp in milliseconds
+	ullong timestamp_ms get_SgNB_ack_for_ue_measurements__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_SgNB_ack_for_ue_measurements__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_SgNB_ack_for_ue_measurements__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_SgNB_ack_for_ue_measurements__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_SgNB_ack_for_ue_measurements__id_MeNB_UE_X2AP_ID_Extension (required);
+// ss (synchronization signal) or broadcast cell-specific signam measurements
+	uint ssbFrequency get_SgNB_ack_for_ue_measurements__ssbFrequency;
+// CSI RS downlink cell specific reference signal measurements
+	uint refFreqCSI_RS get_SgNB_ack_for_ue_measurements__refFreqCSI_RS;
+// primary key of the cell id
+	uint physCellId get_SgNB_ack_for_ue_measurements__physCellId;
+	uint rsrq get_SgNB_ack_for_ue_measurements__rsrq;
+	uint rsrp get_SgNB_ack_for_ue_measurements__rsrp;
+	uint sinr get_SgNB_ack_for_ue_measurements__sinr;
+}
+
+// CSI beam measurements of the user while serving the eRABs
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 506, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL SgNB_ack_for_ue_beam_csi (base, schema_id 506){
+// timestamp in milliseconds
+	ullong timestamp_ms get_SgNB_ack_for_ue_beam_csi__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_SgNB_ack_for_ue_beam_csi__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_SgNB_ack_for_ue_beam_csi__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_SgNB_ack_for_ue_beam_csi__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_SgNB_ack_for_ue_beam_csi__id_MeNB_UE_X2AP_ID_Extension (required);
+// ss (synchronization signal) or broadcast cell-specific signam measurements
+	uint ssbFrequency get_SgNB_ack_for_ue_beam_csi__ssbFrequency;
+// CSI RS downlink cell specific reference signal measurements
+	uint refFreqCSI_RS get_SgNB_ack_for_ue_beam_csi__refFreqCSI_RS;
+// primary key of the cell id
+	uint physCellId get_SgNB_ack_for_ue_beam_csi__physCellId;
+// beam id for CSI Reference Signal measurement results
+	llong csi_rs_index get_SgNB_ack_for_ue_beam_csi__csi_rs_index (required);
+	uint rsrq get_SgNB_ack_for_ue_beam_csi__rsrq;
+	uint rsrp get_SgNB_ack_for_ue_beam_csi__rsrp;
+	uint sinr get_SgNB_ack_for_ue_beam_csi__sinr;
+}
+
+// SSB beam measurements of the user while serving the eRABs
+// Defined in sgnb_addition_ack.json on sgnb_addition_request_acknowledge.proto
+// schemaId = 507, interface SGNB_ADDITION_REQ_ACK
+PROTOCOL SgNB_ack_for_ue_beam_ssb (base, schema_id 507){
+// timestamp in milliseconds
+	ullong timestamp_ms get_SgNB_ack_for_ue_beam_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_SgNB_ack_for_ue_beam_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching between addition_req and addition_req_ack.
+	llong id_MeNB_UE_X2AP_ID get_SgNB_ack_for_ue_beam_ssb__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. primary key for referring to the UE within SgNB.
+	llong id_SgNB_UE_X2AP_ID get_SgNB_ack_for_ue_beam_ssb__id_SgNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_SgNB_ack_for_ue_beam_ssb__id_MeNB_UE_X2AP_ID_Extension (required);
+// ss (synchronization signal) or broadcast cell-specific signam measurements
+	uint ssbFrequency get_SgNB_ack_for_ue_beam_ssb__ssbFrequency;
+// CSI RS downlink cell specific reference signal measurements
+	uint refFreqCSI_RS get_SgNB_ack_for_ue_beam_ssb__refFreqCSI_RS;
+// primary key of the cell id
+	uint physCellId get_SgNB_ack_for_ue_beam_ssb__physCellId;
+// beam id for SSB Reference Signal measurement results
+	llong ssb_Index get_SgNB_ack_for_ue_beam_ssb__ssb_Index (required);
+	uint rsrq get_SgNB_ack_for_ue_beam_ssb__rsrq;
+	uint rsrp get_SgNB_ack_for_ue_beam_ssb__rsrp;
+	uint sinr get_SgNB_ack_for_ue_beam_ssb__sinr;
+}
+
+// Extract the gtp_teid and also the transport layer address
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 10001, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_gtp_teid (base, schema_id 10001){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_gtp_teid__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_gtp_teid__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_gtp_teid__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	string gTP_TEID get_sgnb_addreq_gtp_teid__gTP_TEID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial, likely an ipv6 address in binary.  default=0
+	string transportLayerAddress get_sgnb_addreq_gtp_teid__transportLayerAddress (required);
+}
+
+// Indicates request for adding secondary node to the UE
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 401, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue (base, schema_id 401){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue__id_MeNB_UE_X2AP_ID (required);
+// maximum allowed fraction of traffic on the sGNB.  in bps.
+	llong uEaggregateMaximumBitRateDownlink get_sgnb_addreq_for_ue__uEaggregateMaximumBitRateDownlink;
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue__id_MeNB_UE_X2AP_ID_Extension (required);
+// concatenate with plnm_identity to get the complete cell id
+	string eUTRANcellIdentifier get_sgnb_addreq_for_ue__eUTRANcellIdentifier (required);
+// concatenate with eUTRANcellIdentifier to get the complete cell id
+	string pLMN_Identity get_sgnb_addreq_for_ue__pLMN_Identity (required);
+}
+
+// Indicates request for adding secondary node to the UE, with bearer details
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 402, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_bearers (base, schema_id 402){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_bearers__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_bearers__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_bearers__id_MeNB_UE_X2AP_ID (required);
+// fraction for  the enb LTE portion (MCG)  default=0
+	llong MCG_eRAB_MaximumBitrateDL get_sgnb_addreq_for_ue_bearers__MCG_eRAB_MaximumBitrateDL (required);
+//   default=-1
+	llong pDCPatSgNB get_sgnb_addreq_for_ue_bearers__pDCPatSgNB (required);
+// Data radio bearer ID of this bearer
+	llong drb_ID get_sgnb_addreq_for_ue_bearers__drb_ID (required);
+// service class priority for the corresponding bearer.  default=0
+	llong priorityLevel get_sgnb_addreq_for_ue_bearers__priorityLevel (required);
+// Tunnel is a virtual connection over the physical X2 connection meant to handle a bearer-specific GTP (GPRS Tunneling Protocol) traffic flow in terms of PDCP PDUs.  This virtual connection has an ID given by this field.  default=""
+	string gTP_TEID get_sgnb_addreq_for_ue_bearers__gTP_TEID (required);
+// indicates if bearer preemption is possible or not.  default=-1
+	llong pre_emptionCapability get_sgnb_addreq_for_ue_bearers__pre_emptionCapability (required);
+// fraction for  the enb LTE portion (MCG)  default=0
+	llong MCG_eRAB_GuaranteedBitrateUL get_sgnb_addreq_for_ue_bearers__MCG_eRAB_GuaranteedBitrateUL (required);
+//   default=-1
+	llong mCGresources get_sgnb_addreq_for_ue_bearers__mCGresources (required);
+// logical IP address for this virtual connection over X2, likely an ipv6 address in binary.  default=""
+	string transportLayerAddress get_sgnb_addreq_for_ue_bearers__transportLayerAddress (required);
+// complete profile  default=0
+	llong full_eRAB_GuaranteedBitrateUL get_sgnb_addreq_for_ue_bearers__full_eRAB_GuaranteedBitrateUL (required);
+//   default=-1
+	llong sCGresources get_sgnb_addreq_for_ue_bearers__sCGresources (required);
+// fraction for  the enb LTE portion (MCG)  default=0
+	llong MCG_eRAB_MaximumBitrateUL get_sgnb_addreq_for_ue_bearers__MCG_eRAB_MaximumBitrateUL (required);
+// complete profile  default=0
+	llong full_eRAB_MaximumBitrateUL get_sgnb_addreq_for_ue_bearers__full_eRAB_MaximumBitrateUL (required);
+// indicates if bearer is pre-emptable or not pre-emptable.  default=-1
+	llong pre_emptionVulnerability get_sgnb_addreq_for_ue_bearers__pre_emptionVulnerability (required);
+// radio access bearer of this bearer
+	llong e_RAB_ID get_sgnb_addreq_for_ue_bearers__e_RAB_ID (required);
+// fraction for  the enb LTE portion (MCG)  default=0
+	llong MCG_eRAB_GuaranteedBitrateDL get_sgnb_addreq_for_ue_bearers__MCG_eRAB_GuaranteedBitrateDL (required);
+// Qos class identifier  - this is used to refer to the traffic profile of the corresponding bearer in terms of performance metrics.  default=0
+	llong qCI get_sgnb_addreq_for_ue_bearers__qCI (required);
+// complete profile  default=0
+	llong full_eRAB_MaximumBitrateDL get_sgnb_addreq_for_ue_bearers__full_eRAB_MaximumBitrateDL (required);
+// complete profile  default=0
+	llong full_eRAB_GuaranteedBitrateDL get_sgnb_addreq_for_ue_bearers__full_eRAB_GuaranteedBitrateDL (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 403, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_sn_serv_ssb (base, schema_id 403){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_sn_serv_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_sn_serv_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_sn_serv_ssb__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_sn_serv_ssb__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_sn_serv_ssb__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_sn_serv_ssb__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_sn_serv_ssb__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_sn_serv_ssb__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 404, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_sn_serv_csi_rs (base, schema_id 404){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_sn_serv_csi_rs__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_sn_serv_csi_rs__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_sn_serv_csi_rs__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_sn_serv_csi_rs__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_sn_serv_csi_rs__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_sn_serv_csi_rs__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_sn_serv_csi_rs__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_sn_serv_csi_rs__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 405, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_mn_serv_ssb (base, schema_id 405){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_mn_serv_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_mn_serv_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_mn_serv_ssb__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_mn_serv_ssb__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_mn_serv_ssb__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_mn_serv_ssb__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_mn_serv_ssb__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_mn_serv_ssb__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 406, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_mn_serv_csi_rs (base, schema_id 406){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_mn_serv_csi_rs__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_mn_serv_csi_rs__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_mn_serv_csi_rs__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_mn_serv_csi_rs__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_mn_serv_csi_rs__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_mn_serv_csi_rs__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_mn_serv_csi_rs__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_mn_serv_csi_rs__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 408, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_sn_neigh_ssb (base, schema_id 408){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_sn_neigh_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_sn_neigh_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_sn_neigh_ssb__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_sn_neigh_ssb__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_sn_neigh_ssb__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_sn_neigh_ssb__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_sn_neigh_ssb__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_sn_neigh_ssb__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 409, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_sn_neigh_csi_rs (base, schema_id 409){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_sn_neigh_csi_rs__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_sn_neigh_csi_rs__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_sn_neigh_csi_rs__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_sn_neigh_csi_rs__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_sn_neigh_csi_rs__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_sn_neigh_csi_rs__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_sn_neigh_csi_rs__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_sn_neigh_csi_rs__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 410, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_mn_neigh_ssb (base, schema_id 410){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_mn_neigh_ssb__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_mn_neigh_ssb__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_mn_neigh_ssb__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_mn_neigh_ssb__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_mn_neigh_ssb__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_mn_neigh_ssb__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_mn_neigh_ssb__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_mn_neigh_ssb__sinr (required);
+}
+
+// Indicates request for adding secondary node to the UE.  Extract the SN / serving cell / ssb measurements.
+// Defined in sgnb_addition_req.json on sgnb_addition_request.proto
+// schemaId = 411, interface SGNB_ADDITION_REQ
+PROTOCOL sgnb_addreq_for_ue_mn_neigh_csi_rs (base, schema_id 411){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_addreq_for_ue_mn_neigh_csi_rs__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_addreq_for_ue_mn_neigh_csi_rs__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2.  primary key for matching.
+	llong id_MeNB_UE_X2AP_ID get_sgnb_addreq_for_ue_mn_neigh_csi_rs__id_MeNB_UE_X2AP_ID (required);
+// additional bytes optionally rqd. for user id (MeNB ue ID is 16 bits)  not expected to be used for PIZ trial.  default=0
+	uint id_MeNB_UE_X2AP_ID_Extension get_sgnb_addreq_for_ue_mn_neigh_csi_rs__id_MeNB_UE_X2AP_ID_Extension (required);
+// CELL_ID
+	uint physCellId get_sgnb_addreq_for_ue_mn_neigh_csi_rs__physCellId;
+//   default=128
+	uint rsrq get_sgnb_addreq_for_ue_mn_neigh_csi_rs__rsrq (required);
+//   default=128
+	uint rsrp get_sgnb_addreq_for_ue_mn_neigh_csi_rs__rsrp (required);
+//   default=128
+	uint sinr get_sgnb_addreq_for_ue_mn_neigh_csi_rs__sinr (required);
+}
+
+// ??? 
+// Defined in sgnb_mod_confirm.json on sgnb_modification_confirm.proto
+// schemaId = 1301, interface SGNBMODCONF
+PROTOCOL sgnb_mod_conf (base, schema_id 1301){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_mod_conf__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_mod_conf__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_mod_conf__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory
+	llong id_SgNB_UE_X2AP_ID get_sgnb_mod_conf__id_SgNB_UE_X2AP_ID (required);
+}
+
+// ??? 
+// Defined in sgnb_mod_req.json on sgnb_modification_request.proto
+// schemaId = 1201, interface SGNBMODREQ
+PROTOCOL sgnb_mod_req (base, schema_id 1201){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_mod_req__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_mod_req__gnb_id (required);
+//   default=-1
+	llong cause_protocol get_sgnb_mod_req__cause_protocol (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_mod_req__id_MeNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_transport get_sgnb_mod_req__cause_transport (required);
+//   default=-1
+	llong failureType get_sgnb_mod_req__failureType (required);
+//   default=-1
+	llong cause_radio_network get_sgnb_mod_req__cause_radio_network (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory
+	llong id_SgNB_UE_X2AP_ID get_sgnb_mod_req__id_SgNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_misc get_sgnb_mod_req__cause_misc (required);
+}
+
+// ??? 
+// Defined in sgnb_mod_req_ack.json on sgnb_modification_request_acknowledge.proto
+// schemaId = 1701, interface SGNBMODREQACK
+PROTOCOL sgnb_mod_req_ack (base, schema_id 1701){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_mod_req_ack__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_mod_req_ack__gnb_id (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_mod_req_ack__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory
+	llong id_SgNB_UE_X2AP_ID get_sgnb_mod_req_ack__id_SgNB_UE_X2AP_ID (required);
+}
+
+// ??? 
+// Defined in sgnb_mod_req_reject.json on sgnb_modification_request_reject.proto
+// schemaId = 1801, interface SGNBMODREQREJECT
+PROTOCOL sgnb_mod_req_reject (base, schema_id 1801){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_mod_req_reject__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_mod_req_reject__gnb_id (required);
+//   default=-1
+	llong cause_protocol get_sgnb_mod_req_reject__cause_protocol (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_mod_req_reject__id_MeNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_transport get_sgnb_mod_req_reject__cause_transport (required);
+//   default=-1
+	llong cause_radio_network get_sgnb_mod_req_reject__cause_radio_network (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory
+	llong id_SgNB_UE_X2AP_ID get_sgnb_mod_req_reject__id_SgNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_misc get_sgnb_mod_req_reject__cause_misc (required);
+}
+
+// ??? 
+// Defined in sgnb_mod_rqd.json on sgnb_modification_required.proto
+// schemaId = 1901, interface SGNBMODREQUIRED
+PROTOCOL sgnb_mod_required (base, schema_id 1901){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_mod_required__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_mod_required__gnb_id (required);
+//   default=-1
+	llong cause_protocol get_sgnb_mod_required__cause_protocol (required);
+// UE_ID assigned by eNB for the UE over an X2. Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_mod_required__id_MeNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_transport get_sgnb_mod_required__cause_transport (required);
+//   default=-1
+	llong cause_radio_network get_sgnb_mod_required__cause_radio_network (required);
+// UE_ID assigned by gNB for the UE over the X2.  Is mandatory
+	llong id_SgNB_UE_X2AP_ID get_sgnb_mod_required__id_SgNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_misc get_sgnb_mod_required__cause_misc (required);
+}
+
+// ??? 
+// Defined in sgnb_modification_refuse.json on sgnb_modification_refuse.proto
+// schemaId = 1401, interface SGNBMODREFUSE
+PROTOCOL sgnb_mod_refuse (base, schema_id 1401){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sgnb_mod_refuse__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sgnb_mod_refuse__gnb_id (required);
+// UE_ID assigned by eNB for the UE over the X2.  Is mandatory
+	llong id_MeNB_UE_X2AP_ID get_sgnb_mod_refuse__id_MeNB_UE_X2AP_ID (required);
+// UE_ID assigned by gNB for the UE over an X2. Is optional
+	llong id_SgNB_UE_X2AP_ID get_sgnb_mod_refuse__id_SgNB_UE_X2AP_ID (required);
+//   default=-1
+	llong cause_radio_network get_sgnb_mod_refuse__cause_radio_network (required);
+//   default=-1
+	llong cause_transport get_sgnb_mod_refuse__cause_transport (required);
+//   default=-1
+	llong cause_protocol get_sgnb_mod_refuse__cause_protocol (required);
+//   default=-1
+	llong cause_misc get_sgnb_mod_refuse__cause_misc (required);
+}
+
+//  
+// Defined in snstatusxfer.json on sn_status_transfer.proto
+// schemaId = 1601, interface SNSTATUSXFER
+PROTOCOL sn_status_transfer (base, schema_id 1601){
+// timestamp in milliseconds
+	ullong timestamp_ms get_sn_status_transfer__timestamp_ms (required,increasing);
+// gNB ID
+	string gnb_id get_sn_status_transfer__gnb_id (required);
+// same as id_MeNB_UE_X2AP_ID in SgNBAdditionRequest, SgNBAdditionRequestAcknowledge, etc
+	llong id_Old_eNB_UE_X2AP_ID get_sn_status_transfer__id_Old_eNB_UE_X2AP_ID (required);
+// UE_ID assigned by eNB for the UE over the X2.  Is mandatory  default=0
+	uint id_SgNB_UE_X2AP_ID get_sn_status_transfer__id_SgNB_UE_X2AP_ID (required);
+// Bearer ID
+	llong e_RAB_ID get_sn_status_transfer__e_RAB_ID (required);
+	llong pDCP_SNlength18 get_sn_status_transfer__pDCP_SNlength18 (required);
+}
+

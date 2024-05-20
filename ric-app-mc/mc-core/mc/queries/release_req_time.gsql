@@ -1,0 +1,67 @@
+DEFINE{query_name 'release_req_start';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+select timestamp_ms as timestamp,
+	non_temporal(timestamp_ms) as start_time,
+	0ULL as end_time,
+	id_MeNB_UE_X2AP_ID as eUE_ID,
+	id_SgNB_UE_X2AP_ID as gUE_ID,
+	gnb_id,
+	0 as event_type
+from RELREQ.release_req
+;
+
+DEFINE{query_name 'release_req_success';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the time to delease a DC connection';
+}
+PARAM{ window uint; }
+select timestamp_ms as timestamp,
+	0ULL as start_time,
+	non_temporal(timestamp_ms) as end_time,
+	id_New_eNB_UE_X2AP_ID as eUE_ID,
+	id_SgNB_UE_X2AP_ID as gUE_ID,
+	gnb_id,
+	1 as event_type
+from CONRELEASE.dc_release
+;
+
+DEFINE{query_name 'release_req_events';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+merge p1.timestamp : p2.timestamp
+from release_req_start p1, release_req_success p2
+;
+
+
+DEFINE{query_name 'release_req_success_time';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+}
+PARAM{ window uint; }
+select gUE_ID, gnb_id, TB,
+	UINT(max(end_time)-max(start_time)) as success_time
+from release_req_events
+group by gUE_ID, gnb_id, timestamp / $window as TB
+having max(end_time)>0 and max(start_time)>0 and max(end_time)>max(start_time)
+;
+
+DEFINE{query_name 'release_req_success_stats';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the time to delease a DC connection';
+}
+PARAM{ window uint; }
+select gnb_id as GNB_ID,
+	($window*(TB+1))/1000 as TS, 
+	     $window/1000.0 as measurementInterval,
+ 	MIN(success_time)/1000.0 as min_success_time,
+        MAX(success_time)/1000.0 as max_success_time,
+        AVG(success_time)/1000.0 as avg_success_time,
+	quantile_of(success_time, .05)/1000.0 as pctl_05_success_time,
+	quantile_of(success_time, .95)/1000.0 as pctl_95_success_time,
+	sqrt(
+		sum((success_time/1000.0)*(success_time/1000.0)) - sum(success_time/1000.0)*sum(success_time/1000.0)/count(*)
+	) / count(*) as stddev_success_time
+from release_req_success_time
+group by gnb_id, TB

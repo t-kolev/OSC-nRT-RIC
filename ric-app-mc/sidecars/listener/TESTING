@@ -1,0 +1,111 @@
+Quick test
+Build the container, and run the test:
+	# the container version number may be different than illustrated here
+	bash build_images.sh
+	docker run -it --rm mc_listener:1.2.1 bash /playpen/bin/verify.sh -l
+
+
+
+Indepth Testing Details
+The verify.sh script can be used to verify that the mc_listener binary
+in the container is working.  The script will create a sending process
+that will send messages to the listener.  It will also create a pipe
+reader process for each FIFO that is expected to be created by the 
+listener.  
+
+The default test
+	bash /playpen/bin/verify.sh
+
+The default is a short, approximately 15 second, test which
+will generate all of the FIFOs, and a single raw data capture file
+in the staging directory.  The test isn't long enough for the raw
+data capture mechanism to attempt to "roll" the capture file.
+
+The long test
+	bash /playpen/bin/verify.sh -l
+
+The long test runs for approximately 150 seconds and sets the roll
+frequency on the capture files to 13 seconds.  This test should
+generate several files in the "final" directory. One, in progress,
+file should be left in the staging directory.
+
+Copy vs Rename
+By default the raw data capture will attempt to rename the file to
+move it from staging to final. However, if these directories are not
+on the same filesystem the rename will fail.  In this case, the rdc
+code will copy the file.  These two mechanisms can be tested by
+supplying the container with an external volume, /data, which contains
+a final directory.  For example:
+
+	mkdir -p /tmp/rdc/final
+	docker run -v /tmp/rdc:/data --rm -it mc_listener:1.2.0 bash /playpen/bin/verify.sh -l
+
+When the verify script sees /data/final it will set that as the directory
+for the finished files rather than using the default which is on the
+same filesystem as the staging directory.  The staging directory can
+be changed to be an external directory by adding ./stage to the volume
+which is mounted. For example
+
+	mkdir -p /tmp/rdc/stage
+
+The verify script will find this and switch away from the default and
+allow a test with both directories to originate from outside of the
+container.
+
+
+Sample output
+The following is sample output from running the long test:
+
+
+>> docker run -v /tmp/foo:/data --rm -it mc_listener:1.2.0 bash /playpen/bin/verify.sh -l
+### found /data/final using that as final directory
+starting listener
+starting pipe reader 0
+starting pipe reader 1
+starting pipe reader 2
+starting pipe reader 3
+starting pipe reader 4
+starting pipe reader 5
+starting pipe reader 6
+starting sender
+stopping listener
+stopping sender
+stopping pipe reader 0
+stopping pipe reader 1
+stopping pipe reader 3
+stopping pipe reader 4
+stopping pipe reader 5
+stopping pipe reader 2
+stopping pipe reader 6
+all functions stopped; looking at logs
+----- logs ---------
+-rw-r--r-- 1 root root  41337 Oct  8 16:24 /tmp/listen.log
+-rw-r--r-- 1 root root      0 Oct  8 16:22 /tmp/pr.0.log
+-rw-r--r-- 1 root root 176128 Oct  8 16:24 /tmp/pr.1.log
+-rw-r--r-- 1 root root 176128 Oct  8 16:24 /tmp/pr.2.log
+-rw-r--r-- 1 root root 176128 Oct  8 16:24 /tmp/pr.3.log
+-rw-r--r-- 1 root root 176128 Oct  8 16:24 /tmp/pr.4.log
+-rw-r--r-- 1 root root 176128 Oct  8 16:24 /tmp/pr.5.log
+-rw-r--r-- 1 root root 176128 Oct  8 16:24 /tmp/pr.6.log
+-rw-r--r-- 1 root root 195232 Oct  8 16:24 /tmp/sender.log
+[OK]    All logs seem good
+[OK]    Found expected fifos
+[OK]    Found staging direcory (/tmp/rdc/stage)
+total 100
+drwxr-xr-x 2 root root  4096 Oct  8 16:24 .
+drwxr-xr-x 3 root root  4096 Oct  8 16:22 ..
+--w------- 1 root root 93628 Oct  8 16:24 MCLT_1570551840
+[OK]    Found final direcory (/data/final)
+total 1040
+drwxrwxr-x 2 1001 1001   4096 Oct  8 16:24 .
+drwxrwxr-x 3 1001 1001   4096 Oct  8 16:22 ..
+-rw-rw-r-- 1 root root 146157 Oct  8 16:22 MCLT_1570551749.rdc
+-rw-rw-r-- 1 root root 149222 Oct  8 16:22 MCLT_1570551762.rdc
+-rw-rw-r-- 1 root root 149199 Oct  8 16:23 MCLT_1570551775.rdc
+-rw-rw-r-- 1 root root 149200 Oct  8 16:23 MCLT_1570551788.rdc
+-rw-rw-r-- 1 root root 149209 Oct  8 16:23 MCLT_1570551801.rdc
+-rw-rw-r-- 1 root root 149191 Oct  8 16:23 MCLT_1570551814.rdc
+-rw-rw-r-- 1 root root 149206 Oct  8 16:24 MCLT_1570551827.rdc
+[OK]   Found 7 files in final directory (/data/final)
+[PASS]
+

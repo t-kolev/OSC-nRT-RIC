@@ -1,0 +1,68 @@
+# vim: ts=4 sw=4 noet:
+#==================================================================================
+#	Copyright (c) 2018-2019 AT&T Intellectual Property.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#	   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#==================================================================================
+
+
+#	Mnemonic:	mcl_runtime.df
+#	Abstract:	Docker build file which creaes a runtime image for the listener. 
+#				Building should be as simple as:
+#					docker build -f mcl_runtime.f -t mc_listener:xx.xx .
+#
+#				Running the image in a container:
+#					The fifo output directory needs to be mounted to the container
+#					e.g.  -v /exports/mcl/fifos:/tmp/mcl/fifos.  The internal
+#					directory can be supplied on the command line using -d path, but
+#					should not be needed.
+#
+#					The RMR listen port must be properly exposed to the container. The
+#					internal default is 4560, and can be changed with the -p port option
+#					on the command line (needed if running from docker-compose). Typical
+#					exposure might be  -p <host-port>:4560  on the docker run command.
+#
+#					The MC listener application does NOT need route table updates and thus
+#					there is NO need to expose the route table generator port on this
+#					container.
+#
+#	Date:		22 August 2019
+#	Author:		E. Scott Daniels
+
+
+FROM ubuntu:18.04 as buildenv
+RUN mkdir /playpen
+
+RUN apt-get update && apt-get install -y cmake gcc make git g++ wget
+
+RUN mkdir /playpen/bin /playpen/src
+COPY build_dev_env.sh /playpen/bin/
+COPY Makefile *.h *.c /playpen/src/
+
+ENV LD_LIBRARY_PATH=/usr/local/lib64:/usr/local/lib
+ENV C_INCLUDE_PATH=/usr/local/include
+RUN bash /playpen/bin/build_dev_env.sh
+RUN cd /playpen/src/; make -B mc_listener sender pipe_reader
+
+# -----  final, smaller image ----------------------------------
+FROM ubuntu:18.04
+
+RUN mkdir -p /playpen/bin
+COPY --from=buildenv /usr/local/lib/* /usr/local/lib/
+COPY --from=buildenv /playpen/src/mc_listener /playpen/src/sender /playpen/src/pipe_reader /playpen/bin/
+COPY verify.sh /playpen/bin
+
+ENV LD_LIBRARY_PATH=/usr/local/lib64:/usr/local/lib
+ENV C_INCLUDE_PATH=/usr/local/include
+
+CMD [ "/playpen/bin/mc_listener" ]

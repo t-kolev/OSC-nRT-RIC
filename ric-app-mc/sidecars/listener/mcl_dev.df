@@ -1,0 +1,51 @@
+# vim: ts=4 sw=4 noet:
+#==================================================================================
+#	Copyright (c) 2018-2019 AT&T Intellectual Property.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#	   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#==================================================================================
+
+
+#	Mnemonic:	mcl_dev.df
+#	Abstract:	This is a docker build file which creates an image that can be used
+#				for interactive development of the MC listener and related applications.
+#				Building should be as simple as:
+#					docker build -f mcl_dev.df -t mcl_dev:latest .
+#
+#				The image contains the NNG and RMR libraries and headers needed.  The 
+#				MC listener source is NOT placed into the image. Rather the source should
+#				be mounted as a volume when the container is created:
+#
+#					docker run --rm -it -v $PWD:/playpen/src -u <uid>:<gid> sh
+#				(assuming that the source is in the current working directory).
+#				Once the container is running, vi, make and git are all available.
+#	Date:		22 August 2019
+#	Author:		E. Scott Daniels
+#---------------------------------------------------------------------------------------
+
+FROM ubuntu:18.04
+RUN mkdir /playpen
+
+RUN apt-get update && apt-get install -y cmake gcc make vim git
+RUN apt-get install -y cmake g++ wget
+
+RUN mkdir /playpen/bin
+COPY build_dev_env.sh /playpen/bin/
+RUN bash /playpen/bin/build_dev_env.sh
+
+ENV LD_LIBRARY_PATH=/usr/local/lib;/usr/local/lib64
+ENV C_INCLUDE_PATH=/usr/local/include
+
+CMD [ "bash" ]
+
+

@@ -1,0 +1,290 @@
+DEFINE{query_name 'throughput_session';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by UE session over a measurement interval.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, e_RAB_ID, UE_ID, GNB_ID,
+       $window/1000.0 as measurementInterval,
+
+		sum(usageCountDL) / UMAX( sum( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp))), 1)  as active_throughput,
+
+		sum(usageCountDL) / UMAX( max( endian_swap_ui(UINT(endTimeStamp))) - min(endian_swap_ui(UINT(startTimeStamp))), 1)  as average_throughput,
+
+		min( usageCountDL / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1) ) as min_throughput,
+
+		max( usageCountDL / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1) ) as max_throughput
+from RATDATAUSAGE.rat_data_usage
+group by e_RAB_ID, id_SgNB_UE_X2AP_ID as UE_ID, gnb_id as GNB_ID,
+	timestamp_ms/$window as TB
+;
+
+DEFINE{query_name 'prelim_throughput_gtp_teid';
+	extra_keys 'TB';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'pre-aggregation to get per-teid throughput';
+}
+PARAM{ window uint; }
+select TB, GNB_UE_ID, GNB_ID, e_RAB_ID,
+	sum(usageCountDL)  as sum_usageCountDL,
+	sum( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)))  as sum_duration,
+	 max( endian_swap_ui(UINT(endTimeStamp))) as max_end_ts,
+	 min(endian_swap_ui(UINT(startTimeStamp))) as min_start_ts,
+	min( usageCountDL / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1) ) as min_throughput,
+	max( usageCountDL / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1) ) as max_throughput
+from RATDATAUSAGE.rat_data_usage
+group by id_SgNB_UE_X2AP_ID as GNB_UE_ID, gnb_id as GNB_ID, e_RAB_ID, timestamp_ms/$window as TB
+;
+
+DEFINE{query_name 'throughput_session_gtp_teid_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join throughput_session with gnb_ueid_teid_map to get the gtp_teid, a followup query will reaggregate';
+}
+PARAM{ window uint; }
+select T.TB, T.GNB_UE_ID, T.GNB_ID, T.e_RAB_ID, M.gTP_TEID,
+	T.sum_usageCountDL, T.sum_duration, T.max_end_ts, T.min_start_ts,
+	T.min_throughput, max_throughput
+INNER_JOIN from prelim_throughput_gtp_teid T, gnb_ueid_teid_map M
+Where T.GNB_ID=M.GNB_ID and T.GNB_UE_ID=M.id_SgNB_UE_X2AP_ID and T.TB=M.TB
+;
+
+DEFINE{query_name 'throughput_gtp_teid';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by UE, as determined by the gtp_teid, over a measurement interval.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, gTP_TEID, GNB_ID,
+       $window/1000.0 as measurementInterval,
+		sum(sum_usageCountDL) / UMAX( sum(sum_duration), 1)  as active_throughput,
+		sum(sum_usageCountDL) / UMAX( max(max_end_ts) - min(min_start_ts), 1)  as average_throughput,
+		min( min_throughput ) as min_throughput,
+		max( max_throughput ) as max_throughput
+from throughput_session_gtp_teid_join
+group by  GNB_ID, gTP_TEID, TB
+;
+
+DEFINE{query_name 'throughput_session_pci_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join throughput_session with gnb_ueid_teid_map to get the gtp_teid, a followup query will reaggregate';
+}
+PARAM{ window uint; }
+select T.TB, T.GNB_UE_ID, T.GNB_ID, T.e_RAB_ID, M.physCellId,
+	T.sum_usageCountDL, T.sum_duration, T.max_end_ts, T.min_start_ts,
+	T.min_throughput, max_throughput
+INNER_JOIN from prelim_throughput_gtp_teid T, gnb_ueid_cellid_map M
+Where T.GNB_ID=M.GNB_ID and T.GNB_UE_ID=M.id_SgNB_UE_X2AP_ID and T.TB=M.TB
+;
+
+DEFINE{query_name 'throughput_pci';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by UE, as determined by the gtp_teid, over a measurement interval.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, physCellId, GNB_ID,
+       $window/1000.0 as measurementInterval,
+		sum(sum_usageCountDL) / UMAX( sum(sum_duration), 1)  as active_throughput,
+		sum(sum_usageCountDL) / UMAX( max(max_end_ts) - min(min_start_ts), 1)  as average_throughput,
+		min( min_throughput ) as min_throughput,
+		max( max_throughput ) as max_throughput
+from throughput_session_pci_join
+group by  GNB_ID, physCellId, TB
+;
+
+
+DEFINE{query_name 'throughput_gtp_teid_bearer';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by UE, as determined by the gtp_teid, for a bearer (eRAB_ID) over a measurement interval.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, gTP_TEID, GNB_ID, e_RAB_ID,
+       $window/1000.0 as measurementInterval,
+		sum(sum_usageCountDL) / UMAX( sum(sum_duration), 1)  as active_throughput,
+		sum(sum_usageCountDL) / UMAX( max(max_end_ts) - min(min_start_ts), 1)  as average_throughput,
+		min( min_throughput ) as min_throughput,
+		max( max_throughput ) as max_throughput
+from throughput_session_gtp_teid_join
+group by  GNB_ID, gTP_TEID, e_RAB_ID, TB
+;
+
+// -----------------------------------------
+
+DEFINE{query_name 'add_req_event';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'addition_request event, for merging into qci-arp map';
+}
+PARAM{ window uint;}
+Select timestamp_ms, id_MeNB_UE_X2AP_ID, LLONG(0) as id_SgNB_UE_X2AP_ID, gnb_id,
+	qCI,  priorityLevel as ARP, 0 as event_type
+from SGNB_ADDITION_REQ.sgnb_addreq_for_ue_bearers R
+;
+
+DEFINE{query_name 'add_req_ack_event';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'addition_request_acknowledge event, for merging into qci-arp map';
+}
+PARAM{ window uint;}
+Select timestamp_ms, id_MeNB_UE_X2AP_ID, id_SgNB_UE_X2AP_ID, gnb_id,
+	LLONG(0) as qCI,  LLONG(0) as ARP, 1 as event_type
+From SGNB_ADDITION_REQ_ACK.eRABs_acked_for_admit_for_ue A
+;
+
+DEFINE{query_name 'add_req_events';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'addition_request / acknowledge events';
+}
+PARAM{ window uint;}
+Merge R.timestamp_ms : A.timestamp_ms
+From add_req_event R, add_req_ack_event A
+;
+
+DEFINE{query_name 'gnb_ueid_qci_arp_map';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Output the last known map from (gnb, gnb_ueid) to (qci, arp)';
+}
+PARAM{ window uint;}
+Select TB, GNB_ID, id_MeNB_UE_X2AP_ID, LAST(id_SgNB_UE_X2AP_ID) as id_SgNB_UE_X2AP_ID,
+	FIRST(qCI) as qCI, FIRST(ARP) as ARP
+From add_req_events
+GROUP BY timestamp_ms / $window as TB, id_MeNB_UE_X2AP_ID, gnb_id as GNB_ID
+Having LAST(event_type) = 1
+CLOSING_WHEN ((TB+1)*$window-LAST(timestamp_ms))/1000.0 >= 3600
+;
+
+
+-- DEFINE{query_name 'gueid_to_qciarp_join';
+-- 	max_lfta_disorder '1'; max_hfta_disorder '1';
+-- 	comment 'get gnb_ueid to qci,arp mapping, gnb_ueid is in sgnb addition request acknowledge, qci,arp is in sgnb addition request';
+-- }
+-- PARAM{ window uint;}
+-- Select A.timestamp_ms/$window as TB,
+-- 	non_temporal(A.timestamp_ms) as timestamp_ms,
+-- 	R.id_MeNB_UE_X2AP_ID, A.id_SgNB_UE_X2AP_ID, A.gnb_id,
+-- 	R.qCI, R.priorityLevel as ARP
+-- INNER_JOIN from SGNB_ADDITION_REQ.sgnb_addreq_for_ue_bearers R,
+--               SGNB_ADDITION_REQ_ACK.eRABs_acked_for_admit_for_ue A
+-- Where A.timestamp_ms/$window = R.timestamp_ms/$window and
+-- 	A.gnb_id = R.gnb_id and A.id_MeNB_UE_X2AP_ID = R.id_MeNB_UE_X2AP_ID
+-- --	AND R.PCI = A.PCI
+-- ;
+
+-- DEFINE{query_name 'gnb_ueid_qci_arp_map';
+-- 	max_lfta_disorder '1'; max_hfta_disorder '1';
+-- 	comment 'Output the last known map from (gnb, gnb_ueid) to (qci, arp)';
+-- }
+-- PARAM{ window uint;}
+-- Select TB, GNB_ID, id_SgNB_UE_X2AP_ID, LAST(qCI) as qCI, LAST(ARP) as ARP
+-- from gueid_to_qciarp_join
+-- --from SGNB_ADDITION_REQ_ACK.eRABs_acked_for_admit_for_ue
+-- group by TB, gnb_id as GNB_ID, id_SgNB_UE_X2AP_ID
+-- CLOSING_WHEN ((TB+1)*$window-LAST(timestamp_ms))/1000.0 >= 3600
+-- ;
+
+DEFINE{query_name 'throughput_session_userclass_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join throughput_session with gnb_ueid_teid_map to get the gtp_tied, a followup query will reaggregate';
+}
+PARAM{ window uint; }
+select T.TB, T.GNB_UE_ID, T.GNB_ID, M.qCI, M.ARP, M.id_SgNB_UE_X2AP_ID,
+	EQ(qCI, 9)*EQ(M.ARP, 15) + 2*EQ(qCI, 9)*EQ(M.ARP, 14) as class,
+	T.sum_usageCountDL, T.sum_duration, T.max_end_ts, T.min_start_ts,
+	T.min_throughput, max_throughput
+INNER_JOIN from prelim_throughput_gtp_teid T, gnb_ueid_qci_arp_map M
+Where T.GNB_ID=M.GNB_ID and T.GNB_UE_ID=M.id_SgNB_UE_X2AP_ID
+	and T.TB=M.TB
+;
+
+DEFINE{query_name 'throughput_userclass';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by UE, rolled up into user classes, over a measurement interval.  Class A (qci=9, arp=15) is class=1 and Class B  (qci=8, arp=15) is class=2.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, GNB_ID, class as CLASS,
+       $window/1000.0 as measurementInterval,
+		sum(sum_usageCountDL) / UMAX( sum(sum_duration), 1)  as active_throughput,
+		sum(sum_usageCountDL) / UMAX( max(max_end_ts) - min(min_start_ts), 1)  as average_throughput,
+		min( min_throughput ) as min_throughput,
+		max( max_throughput ) as max_throughput
+from throughput_session_userclass_join
+-- where class>0
+group by  TB, GNB_ID, class
+;
+
+DEFINE{query_name 'throughput_group_pci_join';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'Join throughput_session with gnb_ueid_teid_map to get the gtp_teid, a followup query will reaggregate';
+}
+PARAM{ window uint; }
+select T.TB, T.GNB_UE_ID, T.GNB_ID, T.qCI, T.ARP, M.physCellId,
+	T.sum_usageCountDL, T.sum_duration, T.max_end_ts, T.min_start_ts,
+	T.min_throughput, max_throughput
+INNER_JOIN from throughput_session_userclass_join T, gnb_ueid_cellid_map M
+Where T.GNB_ID=M.GNB_ID and T.GNB_UE_ID=M.id_SgNB_UE_X2AP_ID and T.TB=M.TB
+;
+
+DEFINE{query_name 'throughput_userclass_pci';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by UE, rolled up into user classes, over a measurement interval.  Class A (qci=9, arp=15) is class=1 and Class B  (qci=8, arp=15) is class=2.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, GNB_ID, physCellId, qCI, ARP,
+       $window/1000.0 as measurementInterval,
+		sum(sum_usageCountDL) / UMAX( sum(sum_duration), 1)  as active_throughput,
+		sum(sum_usageCountDL) / UMAX( max(max_end_ts) - min(min_start_ts), 1)  as average_throughput,
+		min( min_throughput ) as min_throughput,
+		max( max_throughput ) as max_throughput
+from throughput_group_pci_join
+group by  TB, GNB_ID, physCellId, qCI, ARP
+;
+
+
+DEFINE{query_name 'throughput_rollup';
+	extra_keys 'TS';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'statistics on the per-UE throughput';
+}
+PARAM{ window uint; }
+select TS, e_RAB_ID, GNB_ID,
+       $window/1000.0 as measurementInterval,
+	count(*) as count_ues,
+	quantile_of( UINT(average_throughput), .05) as average_throughput_percentile_05,
+	quantile_of( UINT(average_throughput), .50) as average_throughput_percentile_50,
+	avg( average_throughput) as average_average_throughput,
+	quantile_of( UINT(average_throughput), .95) as average_throughput_percentile_95,
+	quantile_of( UINT(active_throughput), .05) as active_throughput_percentile_05,
+	quantile_of( UINT(active_throughput), .50) as active_throughput_percentile_50,
+	avg( active_throughput) as average_active_throughput,
+	quantile_of( UINT(active_throughput), .95) as active_throughput_percentile_95
+from throughput_session
+group by TS, e_RAB_ID, GNB_ID
+;
+
+DEFINE{query_name 'throughput_gnb';
+	max_lfta_disorder '1'; max_hfta_disorder '1';
+	comment 'throughput experienced by a GNB over a measurement interval.   *Active* throughput is throughput while actively downloading, *average* averages bytes transfered over the measurement interval';
+}
+PARAM{ window uint; }
+select ($window*(TB+1))/1000 as TS, e_RAB_ID, GNB_ID,
+       $window/1000.0 as measurementInterval,
+
+		sum(usageCountDL) / UMAX( sum( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp))), 1)  as active_throughput,
+
+		sum(usageCountDL) / UMAX( max( endian_swap_ui(UINT(endTimeStamp))) - min(endian_swap_ui(UINT(startTimeStamp))), 1)  as average_throughput,
+
+		min( usageCountDL / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1) ) as min_throughput,
+
+		max( usageCountDL / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1) ) as max_throughput,
+
+		quantile_of( UINT( (usageCountDL) / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1)), .05) as active_throughput_percentile_05,
+
+		quantile_of( UINT( (usageCountDL) / UMAX( endian_swap_ui(UINT(endTimeStamp)) - endian_swap_ui(UINT(startTimeStamp)), 1)), .95) as active_throughput_percentile_95
+
+from RATDATAUSAGE.rat_data_usage
+group by e_RAB_ID, gnb_id as GNB_ID, timestamp_ms/$window as TB
+
+
+
