@@ -1,0 +1,57 @@
+#
+# This file contains various administrative aspects of the (sub)project
+# it is used for management of committers as well general information
+# about the project
+#
+---
+project: 'ric_plt_asn1_documents'
+project_creation_date: '2019-11-08'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &oran_ric_plt_asn1_documents_ptl
+    name: 'Thoralf Czichy'
+    email: 'thoralf.czichy@nokia.com'
+    id: 'czichy'
+    company: 'Nokia'
+    timezone: 'America/New_York'
+primary_contact: *oran_ric_plt_asn1_documents_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.o-ran-sc.org/projects/'
+    key: 'ric_plt_asn1_documents'
+mailing_list:
+    type: 'groups.io'
+    url: 'technical-discuss@lists.o-ran-sc.org'
+    tag: '[]'
+realtime_discussion:
+    type: 'irc'
+    server: 'freenode.net'
+    channel: '#oran'
+meetings:
+    - type: 'gotomeeting+irc'
+      agenda: 'https://wiki.o-ran-sc.org/display/'
+      url: ''
+      server: 'freenode.net'
+      channel: '#oran'
+      repeats: ''
+      time: ''
+repositories:
+    - ric-plt/asn1-documents
+committers:
+    - <<: *oran_ric_plt_asn1_documents_ptl
+    #
+    # Antti was approved by TOC in 7.c.i on Oct-02-2019 in
+    # https://wiki.o-ran-sc.org/display/TOC/2019+Q4-Oct%2C+Nov%2C+Dec#id-2019Q4-Oct,Nov,Dec-20191002
+    #
+    - name: 'Antti Puhakka'
+      email: 'antti.puhakka@nokia.com'
+      id: 'anpuhakk'
+      company: 'Nokia'
+      timezone: 'Europe/Helsinki'
+tsc:
+    # yamllint disable rule:line-length
+    approval: 'https://wiki.o-ran-sc.org/display/TOC/2019+Q4-Oct%2C+Nov%2C+Dec#id-2019Q4-Oct,Nov,Dec-20191002'
+    changes:
+        - type: 'Promotion'
+          name: 'Antti Puhakka'
+          link: 'https://wiki.o-ran-sc.org/display/TOC/2019+Q4-Oct%2C+Nov%2C+Dec#id-2019Q4-Oct,Nov,Dec-20191002'
