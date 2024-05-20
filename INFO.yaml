@@ -1,0 +1,75 @@
+---
+project: ric_plt_xapp_frame_py
+project_creation_date: '2020-02-25'
+project_category: ''
+lifecycle_state: Incubation
+project_lead: &oran_ric_plt_xapp_frame_py_ptl
+    name: Abdul Wahid W
+    email: abdulwahid.w@nokia.com
+    id: wahidw
+    company: Nokia
+    timezone: Asia/Kolkata
+primary_contact: *oran_ric_plt_xapp_frame_py_ptl
+issue_tracking:
+    type: jira
+    url: https://jira.o-ran-sc.org/projects/
+    key: RIC
+mailing_list:
+    type: groups.io
+    url: main@lists.o-ran-sc.org
+    tag: '[]'
+realtime_discussion:
+    type: NA
+    server: NA
+    channel: NA
+meetings:
+    - type: gotomeeting+irc
+      agenda: https://wiki.o-ran-sc.org/display/
+      url: ''
+      server: freenode.net
+      channel: '#oran'
+      repeats: ''
+      time: ''
+repositories:
+    - ric-plt/xapp-frame-py
+committers:
+    - <<: *oran_ric_plt_xapp_frame_py_ptl
+    - name: 'Rakshith T Pai'
+      email: 'rakshith.r_pai@nokia.com'
+      company: 'nokia'
+      id: 'rakshithpai'
+      timezone: 'Asia/Kolkata'
+tsc:
+    # yamllint disable rule:line-length
+    approval: https://lists.o-ran-sc.org/g/main/topic/71383459#488
+    changes:
+        - type: 'Removal'
+          name: 'Erkki Hietala'
+          link: ''
+        - type: 'Removal'
+          name: 'Timo Tietavainen'
+          link: ''
+        - type: 'Promotion'
+          name: 'Rakshith T Pai'
+          link: ''
+        - type: 'Promotion'
+          name: 'Erkki Hietala'
+          link: ''
+        - type: 'Removal'
+          name: 'Scott Daniels'
+          link: ''
+        - type: 'Removal'
+          name: 'Tommy Carpenter'
+          link: 'https://lists.o-ran-sc.org/g/toc/topic/oran_sc_replacing_committer/74802142?p=,,,100,0,0,0::recentpostdate%2Fsticky,,,100,2,0,74802142'
+        - type: 'Promotion'
+          name: 'Chris Lott'
+          link: 'https://lists.o-ran-sc.org/g/toc/topic/oran_sc_replacing_committer/74802142?p=,,,100,0,0,0::recentpostdate%2Fsticky,,,100,2,0,74802142'
+        - type: 'Removal'
+          name: 'Chris Lott'
+          link: 'https://lists.o-ran-sc.org/g/discuss/topic/76987270#22'
+        - type: 'Removal'
+          name: 'Jack Lucas'
+          link: 'https://lists.o-ran-sc.org/g/discuss/topic/76987270#22'
+        - type: 'Promotion'
+          name: 'Scott Daniels'
+          link: 'https://lists.o-ran-sc.org/g/discuss/topic/76987270#22'

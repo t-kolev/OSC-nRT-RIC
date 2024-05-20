@@ -1,0 +1,10 @@
+sphinx
+sphinx-rtd-theme
+sphinxcontrib-httpdomain
+recommonmark
+lfdocs-conf
+numpydoc
+inotify_simple
+mdclogpy
+msgpack
+ricsdl
