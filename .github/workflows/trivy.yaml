@@ -32,12 +32,12 @@ jobs:
       run: chmod +x update_repo.sh
       
     - name: Run update_repo.sh
-      run: ./update_repo.sh osc  # Change 'osc' to 'onos' or 'aic' as needed
+      run: ./update_repo.sh onos  # Change 'osc' to 'onos' or 'aic' as needed
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
         
-  Scan:
+  Trivy-Scan:
     permissions:
         contents: read # for actions/checkout to fetch code
         security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
@@ -45,3 +45,44 @@ jobs:
     needs: update-repo
     uses: t-kolev/Continuous-SCA-Scanning/.github/workflows/trivy.yaml@main
  
+  Data_Analysis:
+      name: Data Analysis
+      needs: Trivy-Scan
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out the code 
+          uses: actions/checkout@v3
+
+        - name: Download result for job Trivy-Scan
+          uses: actions/download-artifact@v4
+          with:
+            name: trivy-results
+            path: scan/
+        
+        - name: setup python
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.10' # install the python version needed
+
+        - name: install python packages
+          run: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+    
+        - name: Running the Python Script
+          run: python script.py scan/trivy-results.json "Trivy.txt" "OSC"
+        
+
+      # Save the JSON vulnerability report to an artifact
+        - name: Save the JSON vulnerability report to an artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: results_data_analysis
+            path: sca_results.json
+
+
+        - name: Save plots to artifacts
+          uses: actions/upload-artifact@v4
+          with:
+              name: plots
+              path: "*.png"
