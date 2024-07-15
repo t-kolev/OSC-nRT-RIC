@@ -66,25 +66,12 @@ jobs:
       - name: Snyk Code test
         run: snyk test --all-projects --json > snyk-results.json || true
 
-      - name: Snyk Code test
-        run: snyk test --all-projects --sarif > snyk-code.sarif || true
-
       - name: Save the JSON file vulnerability report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: snyk-results
           path: ./snyk-results.json
-
-      - name: Split SARIF file if too large
-        run: |
-          python split_sarif.py snyk-code.sarif
-
-      - name: Upload split SARIF files
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'snyk-code-part*.sarif'
-          category: snyk
 
   Trivy-Scan:
     permissions:
