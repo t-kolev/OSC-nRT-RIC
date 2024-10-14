@@ -20,16 +20,24 @@ from ricxappframe.xapp_frame import RMRXapp
 import json
 from ._BaseManager import _BaseManager
 
+from ..utils import Util
+
+
+log = Util.setup_logger()
+
 
 class SdlManager(_BaseManager):
 
     __namespace = "e2Manager"
 
     def __init__(self, rmr_xapp: RMRXapp):
+        log.debug('SdlManager.__init__ :: __init__ called')
         super().__init__(rmr_xapp)
 
     def sdlGetGnbList(self):
+        log.debug('SdlManager.sdlGetGnbList :: sdlGetGnbList called')
         gnblist = self._rmr_xapp.sdl_find_and_get(self.__namespace, "GNB")
+        log.info("SdlManager.sdlGetGnbList:: Processed request: {}".format(json.dumps(gnblist)))
         self.logger.info("SdlManager.sdlGetGnbList:: Processed request: {}".format(json.dumps(gnblist)))
 
     def sdlGetEnbList(self):

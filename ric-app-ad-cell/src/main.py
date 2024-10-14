@@ -16,12 +16,26 @@
 #   limitations under the License.
 #
 # ==================================================================================
-from .adcellxapp import ADCellXapp
+from ricxappframe.xapp_frame import Xapp
+
+from .manager.InfluxDBManager import InfluxDBManager
+
+from .utils import Util
+
+log = Util.setup_logger()
+
+
+def entry(self):
+    log.debug('ADCellXapp.entry :: entry called')
+    influxManager = InfluxDBManager()
+    influxManager.query()
 
 
 def launchXapp():
-    adcellxapp = ADCellXapp()
-    adcellxapp.start()
+    log.debug('In main.py launchXapp method')
+    xapp = Xapp(entrypoint=entry, rmr_port=4560, use_fake_sdl=False)
+    log.debug("AD Cell xApp starting")
+    xapp.run()
 
 
 if __name__ == "__main__":

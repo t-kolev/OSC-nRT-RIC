@@ -29,12 +29,15 @@ from mdclogpy import Logger
 class ADCellXapp:
 
     def __init__(self):
+        print("In ADCellXapp __init__ method")
         fake_sdl = getenv("USE_FAKE_SDL", False)
+        print(fake_sdl)
         self._rmr_xapp = RMRXapp(self._default_handler,
                                  config_handler=self._handle_config_change,
                                  rmr_port=4560,
                                  post_init=self._post_init,
                                  use_fake_sdl=bool(fake_sdl))
+        print("type(self._rmr_xapp): " + type(self._rmr_xapp))
 
     def _post_init(self, rmr_xapp):
         """
