@@ -20,14 +20,19 @@ from ricxappframe.xapp_frame import RMRXapp, rmr
 from ..utils.constants import Constants
 from ._BaseManager import _BaseManager
 
+from ..utils import Util
+
+log = Util.setup_logger()
 
 class A1PolicyManager(_BaseManager):
 
     def __init__(self, rmr_xapp: RMRXapp):
+        log.debug('A1PolicyManager.__init__ :: __init__ called')
         super().__init__(rmr_xapp)
 
     def startup(self):
         policy_query = '{"policy_type_id":"' + str(Constants.AD_CELL_POLICY_ID) + '"}'
         self._rmr_xapp.rmr_send(policy_query.encode(), Constants.A1_POLICY_QUERY)
+        log.info("A1PolicyManager.startup:: Sent A1 policy query = " + policy_query)
         self.logger.info("A1PolicyManager.startup:: Sent A1 policy query = " + policy_query)
 

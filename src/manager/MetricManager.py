@@ -21,20 +21,27 @@ from ricxappframe.metric import metric
 from ._BaseManager import _BaseManager
 from datetime import datetime
 
+from ..utils import Util
+
+log = Util.setup_logger()
+
 # noinspection PyProtectedMember,PyProtectedMember
 class MetricManager(_BaseManager):
 
     def __init__(self, rmr_xapp: RMRXapp):
+        log.debug('MetricManager.__init__ :: __init__ called')
         super().__init__(rmr_xapp)
         self.metric_mgr = metric.MetricsManager(self._rmr_xapp._mrc, "system-time", "ad-cell")
 
     def send_metric(self):
-
+        log.debug('MetricManager.send_metric :: send_metric called')
         # datetime object containing current date and time
         now = datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         metric_list = [dt_string]
         self.logger.info("MetricManager:: metric time {}".format(metric_list))
+        log.info("MetricManager:: metric time {}".format(metric_list))
         self.metric_mgr.send_metrics(metric_list)
         self.logger.info("MetricManager:: metric sent")
+        log.info("MetricManager:: metric sent")
 

@@ -29,3 +29,15 @@ class Constants:
     SUBSCRIPTION_SERVICE = "submgr"
     SUBSCRIPTION_PORT = "3800"
     SUBSCRIPTION_REQ = 12011
+
+    MEAN = "mean"
+    SD = "sd"
+    COUNT = "count"
+    CONFIG_DIR = '../configuration'
+    MODEL_AD_CELL_FILE_NAME = "XGBOOST_NEW_Data_AdCell.pkl"
+    KPIS_INDEXER = ['Short name']
+    REPO_COUNT = 'REPO_COUNT'
+    REPO_MEAN = 'REPO_MEAN'
+    REPO_POW_SUM = 'REPO_POW_SUM'
+    REPO_SD = 'REPO_SD'
+    REPO_SUM = 'REPO_SUM'
