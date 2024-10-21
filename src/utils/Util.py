@@ -14,4 +14,7 @@ log = setup_logger()
 def log_dataframe(df):
     for column in df.columns:
         for row in range(len(df)):
-            log.debug("{} : {}".format(column, df.iloc[row][column]))   
+            log.debug("{} : {}".format(column, df.iloc[row][column]))
+
+def get_logger():
+    return log

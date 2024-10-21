@@ -54,6 +54,8 @@ RUN pip install /tmp
 
 RUN pip install flask-restful
 
+RUN pip install scikit-learn
+
 # Env - TODO- Configmap
 ENV PYTHONUNBUFFERED 1
 ENV CONFIG_FILE=/tmp/init/config-file.json
