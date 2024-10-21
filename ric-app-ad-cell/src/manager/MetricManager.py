@@ -23,7 +23,7 @@ from datetime import datetime
 
 from ..utils import Util
 
-log = Util.setup_logger()
+log = Util.get_logger()
 
 # noinspection PyProtectedMember,PyProtectedMember
 class MetricManager(_BaseManager):

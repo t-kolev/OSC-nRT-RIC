@@ -33,7 +33,7 @@ class Constants:
     MEAN = "mean"
     SD = "sd"
     COUNT = "count"
-    CONFIG_DIR = '../configuration'
+    CONFIG_DIR = '/tmp/src/configuration'
     MODEL_AD_CELL_FILE_NAME = "XGBOOST_NEW_Data_AdCell.pkl"
     KPIS_INDEXER = ['Short name']
     REPO_COUNT = 'REPO_COUNT'

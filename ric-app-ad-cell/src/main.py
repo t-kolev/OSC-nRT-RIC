@@ -22,7 +22,7 @@ from .manager.InfluxDBManager import InfluxDBManager
 
 from .utils import Util
 
-log = Util.setup_logger()
+log = Util.get_logger()
 
 
 def entry(self):
