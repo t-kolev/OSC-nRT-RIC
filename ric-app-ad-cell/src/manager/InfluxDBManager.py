@@ -16,6 +16,18 @@ log = Util.get_logger()
 
 class InfluxDBManager:
 
+    """
+    Retrieves the latest data from InfluxDB for the specified measurement.
+
+    This method connects to the configured InfluxDB instance, queries the latest data within the last 48 hours,
+    and returns the results as a pandas DataFrame. If an error occurs during the query, an empty DataFrame is returned.
+
+    Parameters:
+    measurement (str): The name of the measurement to query from InfluxDB.
+
+    Returns:
+    pd.DataFrame: A pandas DataFrame containing the queried data. An empty DataFrame is returned if an error occurs.
+    """
     def getLatestData(self, measurement) -> pd.DataFrame:
         log.debug('InfluxDBManager.getLatestData :: getLatestData called')
         
@@ -39,8 +51,16 @@ class InfluxDBManager:
             log.error(f"An error occurred while querying InfluxDB: {e}")
             return pd.DataFrame()
         finally:
-            client.close() 
+            client.close()
 
+    """
+    Continuously queries InfluxDB for the latest data based on the configured measurement name.
+        
+    This method retrieves the latest data from InfluxDB for a specified measurement, processes it,
+    and checks if there is sufficient data to perform anomaly detection. If sufficient data is found,
+    it initiates the anomaly detection process using the DetectionExecutor class. The method runs 
+    indefinitely with a sleep interval between each query defined by KPI_FETCH_INTERVAL in the configuration.
+    """
     def query(self):
         log.debug('InfluxDBManager.query :: query called')
         while True:
@@ -64,26 +84,3 @@ class InfluxDBManager:
             else:
                 log.info(f"No data available in measurement '{measurement}'.")
             time.sleep(int(config.get('APP', 'KPI_FETCH_INTERVAL')))
-
-
-    def write(self):
-        client = influxdb_client.InfluxDBClient(url = config.get('APP', 'INFLUX_URL'),
-                                     token=config.get('APP', 'INFLUX_TOKEN'),
-                                     org=config.get('APP', 'INFLUX_ORG'))
-
-        write_api = client.write_api(write_options=SYNCHRONOUS)
-
-        point = influxdb_client.Point("g-nodeb").tag("Short name", "Cell-Name-01").field("DL Effective Throughput [Mbps]", 1024.0)\
-            .field("UL Effective Throughput [Mbps]", 2048)\
-            .field("DL Volume (GB)", 100000)\
-            .field("UL Volume (GB)", 40000)\
-            .field("RRC.ConnMean", 0.000001)\
-            .field("Avg. CQI", 10.0)\
-            .field("Avg. DL PRB Utilization", 1.0)\
-            .field("Avg. UL PRB Utilization", 1.0)\
-            .field("DRB.PacketLossRateUl", 0.0)\
-            .field("RRC Connection Success Rate (%)", 100.0)\
-            .field("RRC Drop Rate (Session Drop Rate, %)", 0.0)\
-            .field("HO Success Rate (%)", 100.0)\
-            .field("RRE Success Rate (%)", 100.0)
-        write_api.write(bucket=config.get('APP', 'INFLUX_BUCKET'), org=config.get('APP', 'INFLUX_ORG'), record=point)
