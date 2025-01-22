@@ -5,7 +5,6 @@ import re
 import argparse
 from statistics import mean
 from collections import Counter, defaultdict
-from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -642,20 +641,14 @@ def main():
     'grey': '#999999'
     }
     
-    # Save and display figures with dates on the PNG
-    plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(7, 5))  # Adjust the figure size to be more appropriate for a single bar
     plt.bar(total_vulnerabilities_ric.keys(), total_vulnerabilities_ric.values(), color=color_blind_friendly_palette['blue'], width=0.2)
     plt.title(f'Total Number of Vulnerabilities per RIC (Tool: {tool_name})')
     plt.xlabel('RIC')
     plt.ylabel('Number of Vulnerabilities')
-    plt.ylim(0, max(total_vulnerabilities_ric.values()) + 5)
+    plt.ylim(0, max(total_vulnerabilities_ric.values()) + 5)  # Adjust y-axis limit to fit the data
     plt.grid(axis='y')
-
-    # Add the date as a text annotation on the plot
-    plt.text(0.95, 0.01, current_date, transform=plt.gca().transAxes,
-             fontsize=10, color='gray', alpha=0.8, ha='right', va='bottom')
-
-    plt.tight_layout()
+    plt.tight_layout()  # Ensure everything fits without being cut off
     plt.savefig(f'total_vulnerabilities_per_ric_{tool_name}.png', dpi=300)
     plt.show()
 
@@ -665,17 +658,12 @@ def main():
         plt.title(f'Vulnerabilities per Repository for {ric} (Tool: {tool_name})')
         plt.xlabel('Repository')
         plt.ylabel('Number of Vulnerabilities')
-        if repos.values():
-            plt.ylim(0, max(repos.values()) + 5)
+        if repos.values():  # Check if the sequence is not empty
+            plt.ylim(0, max(repos.values()) + 5)  # Adjust y-axis limit to fit the data
         else:
-            plt.ylim(0, 5)
+            plt.ylim(0, 5)  # Set a default y-axis limit
         plt.xticks(rotation=60)
         plt.grid(axis='y')
-
-        # Add the date as a text annotation on the plot
-        plt.text(0.95, 0.01, current_date, transform=plt.gca().transAxes,
-                 fontsize=10, color='gray', alpha=0.8, ha='right', va='bottom')
-
         plt.tight_layout()
         plt.savefig(f'vulnerabilities_per_repo_{ric}_{tool_name}.png', dpi=300)
         plt.show()
